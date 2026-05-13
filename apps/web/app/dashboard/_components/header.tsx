@@ -10,7 +10,7 @@ export function DashboardHeader({ contextLabel }: Props) {
     <header className="mb-16">
       <div className="flex items-baseline justify-between mb-8">
         <p className="font-display text-[20px] font-bold tracking-[0.35em] text-ink">
-          PINGO
+          COFRI
         </p>
         <Link
           href="/conta"

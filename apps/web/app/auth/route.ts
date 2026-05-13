@@ -1,4 +1,4 @@
-import { verifyMagicLink } from "@pingo/auth";
+import { verifyMagicLink } from "@cofri/auth";
 import { NextResponse, type NextRequest } from "next/server";
 import { serverEnv } from "@/lib/env";
 import { setSessionCookie } from "@/lib/session";
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 function errorPage(title: string, body: string): NextResponse {
   const html = `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="utf-8" />
-<title>Pingo · ${title}</title>
+<title>Cofri · ${title}</title>
 <style>
   body{background:#0b0b0f;color:#ededf3;font-family:system-ui;display:flex;
        align-items:center;justify-content:center;min-height:100vh;margin:0;padding:24px}

@@ -1,5 +1,5 @@
 {
-  "name": "pingo",
+  "name": "cofri",
   "version": "0.0.1",
   "private": true,
   "description": "Assistente pessoal de finanças e tarefas via Telegram, com dashboard web.",
@@ -8,13 +8,13 @@
     "node": ">=20"
   },
   "scripts": {
-    "bot:dev": "pnpm --filter @pingo/bot dev",
-    "bot:build": "pnpm --filter @pingo/bot build",
-    "bot:start": "pnpm --filter @pingo/bot start",
-    "web:dev": "pnpm --filter @pingo/web dev",
-    "db:generate": "pnpm --filter @pingo/db generate",
-    "db:migrate": "pnpm --filter @pingo/db migrate",
-    "db:studio": "pnpm --filter @pingo/db studio",
+    "bot:dev": "pnpm --filter @cofri/bot dev",
+    "bot:build": "pnpm --filter @cofri/bot build",
+    "bot:start": "pnpm --filter @cofri/bot start",
+    "web:dev": "pnpm --filter @cofri/web dev",
+    "db:generate": "pnpm --filter @cofri/db generate",
+    "db:migrate": "pnpm --filter @cofri/db migrate",
+    "db:studio": "pnpm --filter @cofri/db studio",
     "typecheck": "pnpm -r --parallel typecheck",
     "test": "pnpm -r --parallel test"
   },

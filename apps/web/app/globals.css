@@ -31,7 +31,7 @@
   --duration-slow: 350ms;
 }
 
-@keyframes pingo-fade-in {
+@keyframes cofri-fade-in {
   from {
     opacity: 0;
   }
@@ -41,7 +41,7 @@
 }
 
 .animate-fade-in {
-  animation: pingo-fade-in var(--duration-base) var(--ease-out-quint) both;
+  animation: cofri-fade-in var(--duration-base) var(--ease-out-quint) both;
 }
 
 /* collapse de altura via grid-template-rows trick.

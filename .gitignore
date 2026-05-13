@@ -35,7 +35,7 @@ Thumbs.db
 prisma/migrations/dev.db*
 
 # context/plan (privados — não vão pro repo público)
-PLANO-PINGO.md
+PLANO-COFRI.md
 .impeccable.md
 AGENTS.md
 .agents/

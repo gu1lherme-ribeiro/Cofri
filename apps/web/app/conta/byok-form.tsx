@@ -194,7 +194,7 @@ export function ByokForm({ current }: Props) {
           As chaves são criptografadas com{" "}
           <span className="font-mono text-ink-muted">AES-256-GCM</span> no
           servidor, usando uma chave-mestre que vive apenas no ambiente do
-          Pingo. Nunca ficam em texto claro no banco e nunca aparecem em
+          Cofri. Nunca ficam em texto claro no banco e nunca aparecem em
           respostas da API.
         </p>
       </div>

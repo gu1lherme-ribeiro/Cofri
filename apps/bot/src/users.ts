@@ -1,4 +1,4 @@
-import { prisma } from "@pingo/db";
+import { prisma } from "@cofri/db";
 
 export async function upsertUserByTelegramId(telegramId: number) {
   return prisma.user.upsert({

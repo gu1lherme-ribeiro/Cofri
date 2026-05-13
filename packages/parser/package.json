@@ -1,5 +1,5 @@
 {
-  "name": "@pingo/parser",
+  "name": "@cofri/parser",
   "version": "0.0.1",
   "private": true,
   "type": "module",

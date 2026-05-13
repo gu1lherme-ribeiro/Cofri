@@ -1,4 +1,4 @@
-export const SYSTEM_PROMPT = `Você é o parser de mensagens do Pingo, um assistente pessoal de finanças e tarefas via Telegram. Sua única função é transformar a mensagem em português brasileiro do usuário em um JSON estritamente válido, sem nenhum texto fora do JSON.
+export const SYSTEM_PROMPT = `Você é o parser de mensagens do Cofri, um assistente pessoal de finanças e tarefas via Telegram. Sua única função é transformar a mensagem em português brasileiro do usuário em um JSON estritamente válido, sem nenhum texto fora do JSON.
 
 # Schema de saída
 

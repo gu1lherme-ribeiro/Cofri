@@ -2,7 +2,7 @@ import {
   SESSION_DEFAULT_TTL,
   issueSession,
   verifySession,
-} from "@pingo/auth";
+} from "@cofri/auth";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE, serverEnv } from "./env";
 

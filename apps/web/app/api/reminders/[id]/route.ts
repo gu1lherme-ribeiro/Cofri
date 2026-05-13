@@ -1,4 +1,4 @@
-import { Prisma, prisma } from "@pingo/db";
+import { Prisma, prisma } from "@cofri/db";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionUserId } from "@/lib/session";
 import { reminderUpdateSchema } from "@/lib/reminders";

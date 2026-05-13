@@ -15,7 +15,7 @@ export default async function ContaPage() {
         <header className="mb-16">
           <div className="flex items-baseline justify-between mb-8">
             <p className="font-display text-[20px] font-bold tracking-[0.35em] text-ink">
-              PINGO
+              COFRI
             </p>
             <Link
               href="/dashboard"
@@ -36,7 +36,7 @@ export default async function ContaPage() {
             Sua chave de modelo
           </h2>
           <p className="text-ink-muted max-w-prose leading-relaxed">
-            O Pingo interpreta suas mensagens com o LLM que você escolher. Cole
+            O Cofri interpreta suas mensagens com o LLM que você escolher. Cole
             sua chave aqui — uma vez salva, o bot passa a usar essa chave em vez
             do fallback do servidor.
           </p>

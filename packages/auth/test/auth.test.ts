@@ -84,8 +84,8 @@ describe("buildMagicLinkUrl", () => {
   });
 
   it("strips a trailing slash", () => {
-    expect(buildMagicLinkUrl("https://pingo.app/", "abc")).toBe(
-      "https://pingo.app/auth?token=abc",
+    expect(buildMagicLinkUrl("https://cofri.app/", "abc")).toBe(
+      "https://cofri.app/auth?token=abc",
     );
   });
 

@@ -2,7 +2,7 @@ import {
   LOW_CONFIDENCE_THRESHOLD,
   parseMessage,
   type ParseResult,
-} from "@pingo/parser";
+} from "@cofri/parser";
 import { upsertUserByTelegramId } from "./users.js";
 import { resolveUserApiKey } from "./api-keys.js";
 import { persistReminder, persistTransaction } from "./persist.js";

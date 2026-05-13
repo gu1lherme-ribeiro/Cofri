@@ -15,4 +15,4 @@ export const serverEnv = {
   },
 };
 
-export const SESSION_COOKIE = "pingo_session";
+export const SESSION_COOKIE = "cofri_session";

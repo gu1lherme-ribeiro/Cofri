@@ -10,7 +10,7 @@ const nextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: resolve(here, "../.."),
   // Permite imports diretos de workspace packages que ainda estão como TS.
-  transpilePackages: ["@pingo/auth", "@pingo/crypto", "@pingo/db"],
+  transpilePackages: ["@cofri/auth", "@cofri/crypto", "@cofri/db"],
   experimental: {
     serverActions: { allowedOrigins: ["localhost:3000"] },
   },

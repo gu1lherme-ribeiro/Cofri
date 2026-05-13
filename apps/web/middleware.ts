@@ -1,7 +1,7 @@
 import { jwtVerify } from "jose";
 import { NextResponse, type NextRequest } from "next/server";
 
-const COOKIE = "pingo_session";
+const COOKIE = "cofri_session";
 
 function key(): Uint8Array {
   const secret = process.env.AUTH_JWT_SECRET;
@@ -12,8 +12,8 @@ function key(): Uint8Array {
 async function isValidSession(token: string): Promise<boolean> {
   try {
     await jwtVerify(token, key(), {
-      issuer: "pingo",
-      audience: "pingo-dashboard-session",
+      issuer: "cofri",
+      audience: "cofri-dashboard-session",
       algorithms: ["HS256"],
     });
     return true;

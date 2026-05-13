@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Pingo launcher
+title Cofri launcher
 
 REM Verifica se pnpm esta instalado.
 where pnpm >nul 2>&1
@@ -25,7 +25,7 @@ if not exist ".env" (
 )
 
 echo.
-echo Subindo Pingo em duas janelas:
+echo Subindo Cofri em duas janelas:
 echo   - Bot     (polling Telegram, recompila em hot reload)
 echo   - Web     (Next.js em http://localhost:3000)
 echo.
@@ -33,8 +33,8 @@ echo Feche as janelas pra encerrar os processos. Esta janela
 echo pode ser fechada com seguranca depois.
 echo.
 
-start "Pingo - Bot" cmd /k "pnpm bot:dev"
-start "Pingo - Web" cmd /k "pnpm web:dev"
+start "Cofri - Bot" cmd /k "pnpm bot:dev"
+start "Cofri - Web" cmd /k "pnpm web:dev"
 
 timeout /t 4 >nul
 endlocal

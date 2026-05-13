@@ -1,7 +1,7 @@
 import "server-only";
 
-import { prisma } from "@pingo/db";
-import { decrypt, encrypt, loadMasterKey } from "@pingo/crypto";
+import { prisma } from "@cofri/db";
+import { decrypt, encrypt, loadMasterKey } from "@cofri/crypto";
 import { serverEnv } from "./env";
 import type { ApiKeyStatus, Provider } from "./api-keys-shared";
 

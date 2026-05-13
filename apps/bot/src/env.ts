@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { resolve } from "node:path";
 
 // Carrega o .env da raiz do monorepo, não do diretório do pacote.
-// `pnpm --filter @pingo/bot dev` muda o cwd pra apps/bot/, então
+// `pnpm --filter @cofri/bot dev` muda o cwd pra apps/bot/, então
 // um `dotenv/config` ingênuo não acharia o arquivo.
 config({ path: resolve(import.meta.dirname, "../../../.env") });
 

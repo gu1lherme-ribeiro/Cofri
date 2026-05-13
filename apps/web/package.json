@@ -1,5 +1,5 @@
 {
-  "name": "@pingo/web",
+  "name": "@cofri/web",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@pingo/auth": "workspace:*",
-    "@pingo/crypto": "workspace:*",
-    "@pingo/db": "workspace:*",
+    "@cofri/auth": "workspace:*",
+    "@cofri/crypto": "workspace:*",
+    "@cofri/db": "workspace:*",
     "dotenv": "^16.4.5",
     "jose": "^5.9.6",
     "next": "^15.1.0",

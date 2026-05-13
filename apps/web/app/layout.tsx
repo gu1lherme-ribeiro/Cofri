@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Pingo · Estúdio",
+  title: "Cofri · Estúdio",
   description: "Suas finanças e lembretes — sem precisar virar contador.",
 };
 

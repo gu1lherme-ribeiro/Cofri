@@ -8,7 +8,7 @@ export function createBot(): Bot {
 
   bot.command("start", (ctx) =>
     ctx.reply(
-      "Oi! Eu sou o Pingo 🐾\n\n" +
+      "Oi! Eu sou o Cofri 🐾\n\n" +
         "Me manda um gasto, receita ou lembrete em linguagem natural — eu interpreto, organizo e confirmo. Por exemplo:\n\n" +
         "• \"gastei 45 no almoço\"\n" +
         "• \"recebi 2000 de freela ontem\"\n" +

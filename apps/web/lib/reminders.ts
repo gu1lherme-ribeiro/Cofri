@@ -1,4 +1,4 @@
-import { prisma } from "@pingo/db";
+import { prisma } from "@cofri/db";
 import { z } from "zod";
 
 export const reminderFiltersSchema = z.object({

@@ -1,6 +1,6 @@
-import { prisma } from "@pingo/db";
-import { decrypt, loadMasterKey } from "@pingo/crypto";
-import type { ProviderName } from "@pingo/parser";
+import { prisma } from "@cofri/db";
+import { decrypt, loadMasterKey } from "@cofri/crypto";
+import type { ProviderName } from "@cofri/parser";
 import { env } from "./env.js";
 
 export type ResolvedApiKey = {

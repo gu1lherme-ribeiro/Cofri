@@ -1,4 +1,4 @@
-import { prisma } from "@pingo/db";
+import { prisma } from "@cofri/db";
 import { CATEGORIES } from "./transactions";
 
 const TZ_OFFSET_MS = -3 * 60 * 60 * 1000; // America/Sao_Paulo (-03:00, sem DST atual)

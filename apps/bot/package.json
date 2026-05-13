@@ -1,5 +1,5 @@
 {
-  "name": "@pingo/bot",
+  "name": "@cofri/bot",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -10,10 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@pingo/auth": "workspace:*",
-    "@pingo/crypto": "workspace:*",
-    "@pingo/db": "workspace:*",
-    "@pingo/parser": "workspace:*",
+    "@cofri/auth": "workspace:*",
+    "@cofri/crypto": "workspace:*",
+    "@cofri/db": "workspace:*",
+    "@cofri/parser": "workspace:*",
     "dotenv": "^16.4.5",
     "grammy": "^1.32.0",
     "tsx": "^4.19.2"

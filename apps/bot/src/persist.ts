@@ -1,5 +1,5 @@
-import { prisma, Prisma } from "@pingo/db";
-import type { ParsedMessage } from "@pingo/parser";
+import { prisma, Prisma } from "@cofri/db";
+import type { ParsedMessage } from "@cofri/parser";
 
 export type TransactionPersisted = {
   amount: number;

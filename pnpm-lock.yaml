@@ -17,16 +17,16 @@ importers:
 
   apps/bot:
     dependencies:
-      '@pingo/auth':
+      '@cofri/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@pingo/crypto':
+      '@cofri/crypto':
         specifier: workspace:*
         version: link:../../packages/crypto
-      '@pingo/db':
+      '@cofri/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@pingo/parser':
+      '@cofri/parser':
         specifier: workspace:*
         version: link:../../packages/parser
       dotenv:
@@ -48,13 +48,13 @@ importers:
 
   apps/web:
     dependencies:
-      '@pingo/auth':
+      '@cofri/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@pingo/crypto':
+      '@cofri/crypto':
         specifier: workspace:*
         version: link:../../packages/crypto
-      '@pingo/db':
+      '@cofri/db':
         specifier: workspace:*
         version: link:../../packages/db
       dotenv:

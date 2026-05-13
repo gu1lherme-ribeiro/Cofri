@@ -1,8 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 
-const ISSUER = "pingo";
-const AUDIENCE_MAGIC = "pingo-dashboard-magic";
-const AUDIENCE_SESSION = "pingo-dashboard-session";
+const ISSUER = "cofri";
+const AUDIENCE_MAGIC = "cofri-dashboard-magic";
+const AUDIENCE_SESSION = "cofri-dashboard-session";
 const ALG = "HS256";
 
 const DEFAULT_MAGIC_TTL = 60 * 10;

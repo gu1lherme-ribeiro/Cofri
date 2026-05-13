@@ -1,4 +1,4 @@
-import { buildMagicLinkUrl, issueMagicLink } from "@pingo/auth";
+import { buildMagicLinkUrl, issueMagicLink } from "@cofri/auth";
 import { env } from "./env.js";
 import { upsertUserByTelegramId } from "./users.js";
 
