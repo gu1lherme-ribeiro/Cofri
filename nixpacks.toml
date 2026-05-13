@@ -1,5 +1,10 @@
-# Override do Nixpacks: força Node 20 e instala pnpm via corepack
-# (a auto-detecção do Nixpacks tenta o atributo `pnpm-9_x` no nixpkgs
-# pinado, que ficou indefinido — quebra o build).
+# Override do Nixpacks:
+# - Node 22 porque pnpm 11.1.1 exige Node >=22.13 (o `packageManager`
+#   declarado no package.json).
+# - openssl porque o Prisma 5 precisa de libssl pra rodar/baixar
+#   engines.
+# pnpm é instalado em runtime via corepack (Node 22 tem corepack
+# atualizado que entende pnpm 11; com Node 20 dava
+# ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING).
 [phases.setup]
-nixPkgs = ["nodejs_20", "openssl"]
+nixPkgs = ["nodejs_22", "openssl"]
