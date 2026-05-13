@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  telegramId BigInt   @unique
+  email      String?  @unique
+  createdAt  DateTime @default(now())
+
+  apiKeys      ApiKey[]
+  transactions Transaction[]
+  reminders    Reminder[]
+}
+
+model ApiKey {
+  id         String   @id @default(cuid())
+  userId     String
+  provider   String   // "anthropic" | "openai" | "gemini"
+  ciphertext Bytes
+  iv         Bytes
+  authTag    Bytes
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Decimal  @db.Decimal(12, 2)
+  kind        String   // "expense" | "income"
+  category    String
+  description String
+  occurredAt  DateTime
+  rawMessage  String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+}
+
+model Reminder {
+  id         String    @id @default(cuid())
+  userId     String
+  text       String
+  dueAt      DateTime
+  notifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dueAt])
+}

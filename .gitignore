@@ -1,0 +1,44 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+# prisma
+prisma/migrations/dev.db*
+
+# context/plan (privados — não vão pro repo público)
+PLANO-PINGO.md
+.impeccable.md
+AGENTS.md
+.agents/
+.n8nac/
+.github/agents/
+workflows/

@@ -1,0 +1,111 @@
+@import url("https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700&f[]=switzer@400,500,600&f[]=fragment-mono@400&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Cabinet Grotesk", system-ui, sans-serif;
+  --font-body: "Switzer", system-ui, sans-serif;
+  --font-mono: "Fragment Mono", ui-monospace, "SF Mono", monospace;
+
+  /* Surfaces — neutrals tinged with the brand hue (75, amber) */
+  --color-canvas: oklch(0.15 0.005 75);
+  --color-surface: oklch(0.2 0.008 75);
+  --color-surface-2: oklch(0.25 0.008 75);
+
+  --color-ink: oklch(0.95 0.005 75);
+  --color-ink-muted: oklch(0.62 0.008 75);
+  --color-ink-faint: oklch(0.45 0.008 75);
+  --color-rule: oklch(0.28 0.008 75);
+
+  /* Signal — used sparingly */
+  --color-accent: oklch(0.72 0.15 75);
+  --color-positive: oklch(0.7 0.1 145);
+  --color-negative: oklch(0.6 0.15 25);
+
+  /* Misc */
+  --radius-card: 4px;
+
+  /* Motion — uma linguagem só, sem bounce */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 350ms;
+}
+
+@keyframes pingo-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: pingo-fade-in var(--duration-base) var(--ease-out-quint) both;
+}
+
+/* collapse de altura via grid-template-rows trick.
+ * overflow só é necessário durante o collapse — deixar overflow:visible
+ * no estado normal permite que popovers (Select, etc) escapem da row. */
+.collapsible {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows var(--duration-base) var(--ease-out-quint),
+    opacity calc(var(--duration-base) * 0.75) var(--ease-out-quint);
+}
+.collapsible > * {
+  min-height: 0;
+}
+.collapsible[data-collapsed="true"] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+.collapsible[data-collapsed="true"] > * {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-canvas);
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}

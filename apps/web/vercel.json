@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "pnpm --filter @pingo/db generate && pnpm --filter @pingo/web build",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./ ../../packages/db ../../packages/auth ../../packages/crypto ../../pnpm-lock.yaml"
+}

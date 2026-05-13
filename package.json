@@ -1,0 +1,25 @@
+{
+  "name": "pingo",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Assistente pessoal de finanças e tarefas via Telegram, com dashboard web.",
+  "packageManager": "pnpm@11.1.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "bot:dev": "pnpm --filter @pingo/bot dev",
+    "bot:build": "pnpm --filter @pingo/bot build",
+    "bot:start": "pnpm --filter @pingo/bot start",
+    "web:dev": "pnpm --filter @pingo/web dev",
+    "db:generate": "pnpm --filter @pingo/db generate",
+    "db:migrate": "pnpm --filter @pingo/db migrate",
+    "db:studio": "pnpm --filter @pingo/db studio",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "test": "pnpm -r --parallel test"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}
