@@ -1,0 +1,5 @@
+# Override do Nixpacks: força Node 20 e instala pnpm via corepack
+# (a auto-detecção do Nixpacks tenta o atributo `pnpm-9_x` no nixpkgs
+# pinado, que ficou indefinido — quebra o build).
+[phases.setup]
+nixPkgs = ["nodejs_20", "openssl"]
