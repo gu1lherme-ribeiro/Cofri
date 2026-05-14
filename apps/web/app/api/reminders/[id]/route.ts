@@ -47,7 +47,13 @@ export async function PATCH(
 
   const data: Prisma.ReminderUpdateInput = {};
   if (parsed.data.text !== undefined) data.text = parsed.data.text;
-  if (parsed.data.dueAt !== undefined) data.dueAt = new Date(parsed.data.dueAt);
+  if (parsed.data.dueAt !== undefined) {
+    data.dueAt = new Date(parsed.data.dueAt);
+    // Reagenda a notificação: se o usuário movimentou o `dueAt`, o
+    // notifier do bot precisa tratar como "nunca avisado" pra disparar
+    // de novo no novo horário.
+    data.notifiedAt = null;
+  }
 
   const updated = await prisma.reminder.update({ where: { id }, data });
   return NextResponse.json({

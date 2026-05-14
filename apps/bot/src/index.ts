@@ -3,9 +3,11 @@ import { webhookCallback } from "grammy";
 import { createBot } from "./bot.js";
 import { env } from "./env.js";
 import { attachRealtime } from "./realtime.js";
+import { startReminderNotifier } from "./notifier.js";
 
 async function main() {
   const bot = createBot();
+  startReminderNotifier(bot);
 
   if (env.botMode === "webhook") {
     if (!env.webhookUrl) {

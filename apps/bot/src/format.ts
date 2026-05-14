@@ -71,6 +71,10 @@ export function formatReminder(r: ReminderPersisted): string {
   return `⏰ Lembrete · ${r.text}\n${dateLine}`;
 }
 
+export function formatReminderNotification(r: ReminderPersisted): string {
+  return `🔔 Lembrete · ${r.text}\n${dateTimeFmt.format(r.dueAt)}`;
+}
+
 export function formatBudgetCrossing(c: BudgetCrossing): string {
   const pct = Math.round((c.spent / c.budget) * 100);
   const spent = moneyFmt.format(c.spent);
