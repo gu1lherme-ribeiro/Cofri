@@ -72,11 +72,11 @@ export function formatReminder(r: ReminderPersisted): string {
 
 export const REPLIES = {
   lowConfidence:
-    "Hmm, não entendi direito 🤔\n\n" +
-    "Tenta algo mais específico:\n" +
-    "• \"gastei 45 no almoço\"\n" +
-    "• \"recebi 2000 de freela ontem\"\n" +
-    "• \"lembrar de pagar luz dia 15\"",
+    "🤔 Não consegui interpretar isso.\n\n" +
+    "Eu entendo três tipos de mensagem:\n\n" +
+    "💸 Gastos: \"gastei 45 no almoço\"\n" +
+    "💰 Receitas: \"recebi 2000 de freela ontem\"\n" +
+    "⏰ Lembretes: \"lembrar de pagar luz dia 15\"",
   missingAmount:
     "Faltou o valor 💸\n\n" +
     "Manda algo como \"gastei 45 no almoço\".",
