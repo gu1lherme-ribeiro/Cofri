@@ -1,14 +1,11 @@
 import { requireSessionUserId } from "@/lib/session";
 import {
-  computeTotals,
   listTransactions,
   transactionFiltersSchema,
 } from "@/lib/transactions";
 import { currentMonthLabel } from "@/lib/format";
 import { DashboardHeader } from "./_components/header";
-import { AnimatedTotals } from "./animated-totals";
-import { Filters } from "./filters";
-import { TransactionsTable } from "./transactions-table";
+import { RealtimeDashboard } from "./realtime-dashboard";
 
 export const dynamic = "force-dynamic";
 
@@ -36,24 +33,19 @@ export default async function DashboardPage({
 
   const filters = parsed.success ? parsed.data : {};
   const items = await listTransactions(userId, filters);
-  const totals = computeTotals(items);
+  const wsUrl = process.env.NEXT_PUBLIC_REALTIME_WS_URL;
 
   return (
     <main className="min-h-screen">
       <div className="max-w-3xl mx-auto px-6 py-12 md:py-16">
         <DashboardHeader contextLabel={currentMonthLabel()} />
 
-        <AnimatedTotals
-          income={totals.income}
-          expense={totals.expense}
-          count={totals.count}
-        />
-
-        <Filters current={{ category: sp.category, kind: sp.kind }} />
-
-        <TransactionsTable
-          items={items}
-          revision={`${sp.kind ?? ""}|${sp.category ?? ""}`}
+        <RealtimeDashboard
+          initialItems={items}
+          filters={filters}
+          filterUiCurrent={{ category: sp.category, kind: sp.kind }}
+          filterRevision={`${sp.kind ?? ""}|${sp.category ?? ""}`}
+          wsUrl={wsUrl}
         />
       </div>
     </main>
