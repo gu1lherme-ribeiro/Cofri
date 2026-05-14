@@ -1,3 +1,4 @@
+import type { BudgetCrossing } from "./budgets.js";
 import type { ReminderPersisted, TransactionPersisted } from "./persist.js";
 
 const TZ = "America/Sao_Paulo";
@@ -68,6 +69,26 @@ export function formatReminder(r: ReminderPersisted): string {
     ? `${dateTimeFmt.format(r.dueAt)} · ${relative}`
     : dateTimeFmt.format(r.dueAt);
   return `⏰ Lembrete · ${r.text}\n${dateLine}`;
+}
+
+export function formatBudgetCrossing(c: BudgetCrossing): string {
+  const pct = Math.round((c.spent / c.budget) * 100);
+  const spent = moneyFmt.format(c.spent);
+  const budget = moneyFmt.format(c.budget);
+
+  if (c.threshold === 100) {
+    const over = moneyFmt.format(c.spent - c.budget);
+    return (
+      `🚨 Estourou o orçamento de ${c.category}.\n` +
+      `${spent} de ${budget} · ${over} acima`
+    );
+  }
+  // 80%
+  const remaining = moneyFmt.format(Math.max(0, c.budget - c.spent));
+  return (
+    `⚠️ Você já consumiu ${pct}% do orçamento de ${c.category}.\n` +
+    `${spent} de ${budget} · faltam ${remaining}`
+  );
 }
 
 export const REPLIES = {

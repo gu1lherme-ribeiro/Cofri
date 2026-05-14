@@ -6,7 +6,12 @@ import {
 import { upsertUserByTelegramId } from "./users.js";
 import { resolveUserApiKey } from "./api-keys.js";
 import { persistReminder, persistTransaction } from "./persist.js";
-import { REPLIES, formatReminder, formatTransaction } from "./format.js";
+import {
+  REPLIES,
+  formatBudgetCrossing,
+  formatReminder,
+  formatTransaction,
+} from "./format.js";
 
 export async function handleTextMessage(
   text: string,
@@ -47,7 +52,11 @@ export async function handleTextMessage(
     case "income": {
       if (parsed.amount == null) return REPLIES.missingAmount;
       const tx = await persistTransaction(user.id, parsed, text);
-      return formatTransaction(tx);
+      const main = formatTransaction(tx);
+      if (tx.budgetCrossing) {
+        return `${main}\n\n${formatBudgetCrossing(tx.budgetCrossing)}`;
+      }
+      return main;
     }
     case "reminder": {
       if (!parsed.occurredAt) return REPLIES.missingDueAt;

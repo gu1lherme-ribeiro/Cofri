@@ -1,6 +1,7 @@
 import { prisma, Prisma } from "@cofri/db";
 import type { ParsedMessage } from "@cofri/parser";
 import { broadcast } from "./realtime.js";
+import { checkBudgetCrossing, type BudgetCrossing } from "./budgets.js";
 
 export type TransactionPersisted = {
   amount: number;
@@ -8,6 +9,8 @@ export type TransactionPersisted = {
   category: string;
   description: string;
   occurredAt: Date;
+  /** Preenchido só pra `expense` que acabou de cruzar 80% ou 100% do orçamento. */
+  budgetCrossing?: BudgetCrossing;
 };
 
 export type ReminderPersisted = {
@@ -56,13 +59,25 @@ export async function persistTransaction(
     },
   });
 
-  return {
+  const result: TransactionPersisted = {
     amount: parsed.amount,
     kind: parsed.intent,
     category,
     description: parsed.description,
     occurredAt,
   };
+
+  if (parsed.intent === "expense") {
+    try {
+      const crossing = await checkBudgetCrossing(userId, category, occurredAt);
+      if (crossing) result.budgetCrossing = crossing;
+    } catch (err) {
+      // Alerta é decoração — não pode quebrar a persistência. Loga e segue.
+      console.error("[persist] checkBudgetCrossing error:", err);
+    }
+  }
+
+  return result;
 }
 
 export async function persistReminder(

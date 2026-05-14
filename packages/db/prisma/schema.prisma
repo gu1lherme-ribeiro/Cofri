@@ -21,6 +21,7 @@ model User {
   transactions Transaction[]
   reminders    Reminder[]
   budgets      Budget[]
+  budgetAlerts BudgetAlert[]
 }
 
 model ApiKey {
@@ -77,4 +78,17 @@ model Budget {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, category])
+}
+
+model BudgetAlert {
+  id        String   @id @default(cuid())
+  userId    String
+  category  String
+  period    String   // "YYYY-MM" pra escopo mensal
+  threshold Int      // 80 ou 100
+  sentAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category, period, threshold])
 }
