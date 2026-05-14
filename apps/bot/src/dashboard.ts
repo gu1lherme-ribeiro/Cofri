@@ -26,7 +26,7 @@ export async function generateDashboardLink(
 
 export function formatDashboardLink(link: DashboardLink): string {
   return (
-    `🔗 Abra seu dashboard:\n${link.url}\n\n` +
+    `🔗 Aqui está seu dashboard:\n\n${link.url}\n\n` +
     `(o link expira em ${link.expiresInMinutes} minutos)`
   );
 }
