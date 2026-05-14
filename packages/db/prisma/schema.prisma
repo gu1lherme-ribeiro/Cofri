@@ -1,5 +1,9 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // `rhel-openssl-3.0.x` é o runtime AWS Lambda da Vercel; `native`
+  // mantém o engine local pra dev. Sem isso, o build do Vercel
+  // gera só o engine local e o function explode em runtime.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

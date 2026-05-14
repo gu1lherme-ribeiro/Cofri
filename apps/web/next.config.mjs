@@ -11,6 +11,12 @@ const nextConfig = {
   outputFileTracingRoot: resolve(here, "../.."),
   // Permite imports diretos de workspace packages que ainda estão como TS.
   transpilePackages: ["@cofri/auth", "@cofri/crypto", "@cofri/db"],
+  // @prisma/client carrega o engine nativo (.so) em runtime via require
+  // dinâmico. Se o Next tenta empacotar, o engine não vai junto e o
+  // function quebra com "Query Engine for runtime rhel-openssl-3.0.x".
+  // Externalizar mantém o pacote no node_modules e o tracing do
+  // outputFileTracingRoot copia o engine pro deploy bundle.
+  serverExternalPackages: ["@prisma/client", ".prisma/client"],
   experimental: {
     serverActions: { allowedOrigins: ["localhost:3000"] },
   },
