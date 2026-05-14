@@ -20,6 +20,7 @@ model User {
   apiKeys      ApiKey[]
   transactions Transaction[]
   reminders    Reminder[]
+  budgets      Budget[]
 }
 
 model ApiKey {
@@ -63,4 +64,17 @@ model Reminder {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, dueAt])
+}
+
+model Budget {
+  id            String   @id @default(cuid())
+  userId        String
+  category      String
+  monthlyAmount Decimal  @db.Decimal(12, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category])
 }

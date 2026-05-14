@@ -7,6 +7,7 @@ const ITEMS = [
   { value: "/dashboard", label: "Finanças" },
   { value: "/dashboard/agenda", label: "Agenda" },
   { value: "/dashboard/insights", label: "Insights" },
+  { value: "/dashboard/orcamento", label: "Orçamento" },
 ] as const;
 
 export function DashboardNav() {
