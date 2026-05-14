@@ -3,16 +3,19 @@ import { SignJWT, jwtVerify } from "jose";
 const ISSUER = "cofri";
 const AUDIENCE_MAGIC = "cofri-dashboard-magic";
 const AUDIENCE_SESSION = "cofri-dashboard-session";
+const AUDIENCE_REALTIME = "cofri-realtime";
 const ALG = "HS256";
 
 const DEFAULT_MAGIC_TTL = 60 * 10;
 const DEFAULT_SESSION_TTL = 60 * 60 * 24 * 30;
+const DEFAULT_REALTIME_TTL = 60 * 5;
 
 export type Claims = {
   userId: string;
 };
 export type MagicLinkClaims = Claims;
 export type SessionClaims = Claims;
+export type RealtimeClaims = Claims;
 
 export type IssueOptions = {
   ttlSeconds?: number;
@@ -91,6 +94,26 @@ export function verifySession(
   return verify(AUDIENCE_SESSION, token, secret);
 }
 
+export function issueRealtimeToken(
+  claims: RealtimeClaims,
+  secret: string,
+  opts: IssueOptions = {},
+): Promise<string> {
+  return sign(
+    AUDIENCE_REALTIME,
+    opts.ttlSeconds ?? DEFAULT_REALTIME_TTL,
+    claims,
+    secret,
+  );
+}
+
+export function verifyRealtimeToken(
+  token: string,
+  secret: string,
+): Promise<RealtimeClaims> {
+  return verify(AUDIENCE_REALTIME, token, secret);
+}
+
 export function buildMagicLinkUrl(dashboardUrl: string, token: string): string {
   const base = dashboardUrl.endsWith("/")
     ? dashboardUrl.slice(0, -1)
@@ -100,3 +123,4 @@ export function buildMagicLinkUrl(dashboardUrl: string, token: string): string {
 
 export const SESSION_DEFAULT_TTL = DEFAULT_SESSION_TTL;
 export const MAGIC_LINK_DEFAULT_TTL = DEFAULT_MAGIC_TTL;
+export const REALTIME_DEFAULT_TTL = DEFAULT_REALTIME_TTL;

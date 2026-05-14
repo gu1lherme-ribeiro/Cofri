@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { webhookCallback } from "grammy";
 import { createBot } from "./bot.js";
 import { env } from "./env.js";
+import { attachRealtime } from "./realtime.js";
 
 async function main() {
   const bot = createBot();
@@ -30,6 +31,8 @@ async function main() {
       }
     });
 
+    attachRealtime(server);
+
     await bot.api.setWebhook(env.webhookUrl, {
       secret_token: env.webhookSecret || undefined,
       allowed_updates: ["message", "callback_query"],
@@ -40,6 +43,21 @@ async function main() {
     });
     return;
   }
+
+  // Em polling (dev), sobe um HTTP minimal só pro WSS funcionar localmente.
+  const devServer = createServer((req, res) => {
+    if (req.method === "GET" && req.url === "/health") {
+      res.writeHead(200, { "content-type": "text/plain" });
+      res.end("ok");
+      return;
+    }
+    res.writeHead(404);
+    res.end();
+  });
+  attachRealtime(devServer);
+  devServer.listen(env.port, () => {
+    console.log(`[bot] realtime server on :${env.port}/ws (polling mode)`);
+  });
 
   // polling (dev)
   await bot.api.deleteWebhook({ drop_pending_updates: false }).catch(() => {});

@@ -1,5 +1,6 @@
 import { prisma, Prisma } from "@cofri/db";
 import type { ParsedMessage } from "@cofri/parser";
+import { broadcast } from "./realtime.js";
 
 export type TransactionPersisted = {
   amount: number;
@@ -29,7 +30,7 @@ export async function persistTransaction(
   const occurredAt = parsed.occurredAt ? new Date(parsed.occurredAt) : new Date();
   const category = parsed.category ?? "outros";
 
-  await prisma.transaction.create({
+  const row = await prisma.transaction.create({
     data: {
       userId,
       amount: new Prisma.Decimal(parsed.amount),
@@ -38,6 +39,20 @@ export async function persistTransaction(
       description: parsed.description,
       occurredAt,
       rawMessage,
+    },
+  });
+
+  broadcast(userId, {
+    type: "transaction.created",
+    payload: {
+      id: row.id,
+      amount: row.amount.toNumber(),
+      kind: row.kind as "expense" | "income",
+      category: row.category,
+      description: row.description,
+      occurredAt: row.occurredAt.toISOString(),
+      createdAt: row.createdAt.toISOString(),
+      rawMessage: row.rawMessage,
     },
   });
 
@@ -62,8 +77,19 @@ export async function persistReminder(
   }
 
   const dueAt = new Date(parsed.occurredAt);
-  await prisma.reminder.create({
+  const row = await prisma.reminder.create({
     data: { userId, text: parsed.description, dueAt },
+  });
+
+  broadcast(userId, {
+    type: "reminder.created",
+    payload: {
+      id: row.id,
+      text: row.text,
+      dueAt: row.dueAt.toISOString(),
+      notifiedAt: row.notifiedAt ? row.notifiedAt.toISOString() : null,
+      createdAt: row.createdAt.toISOString(),
+    },
   });
 
   return { text: parsed.description, dueAt };

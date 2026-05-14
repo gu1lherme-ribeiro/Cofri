@@ -16,10 +16,12 @@
     "@cofri/parser": "workspace:*",
     "dotenv": "^16.4.5",
     "grammy": "^1.32.0",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",
+    "@types/ws": "^8.5.13",
     "typescript": "^5.6.3"
   }
 }
