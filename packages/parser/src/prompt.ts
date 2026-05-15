@@ -35,9 +35,10 @@ Use SOMENTE uma destas, em letras minúsculas, com acento exatamente como mostra
 
 # Regras temporais
 
-Hoje no Brasil é uma data com offset -03:00. Se o usuário disser:
+O contexto no início da mensagem traz **agora** em ISO 8601 com offset -03:00. Use-o como referência absoluta pra qualquer cálculo de data/hora relativa.
 
-- "agora", "agorinha", "agora há pouco", "acabei de", "mesmo agora" → use a hora atual. Quando em dúvida sobre hora, devolva null em occurredAt.
+- "agora", "agorinha", "agora há pouco", "acabei de", "mesmo agora" → para expense/income, devolva null (o app trata como agora). Para reminder, copie o instante do contexto.
+- "daqui X minutos / horas", "em X min", "X min" (como reminder) → some X ao instante do contexto. Ex.: agora é 2026-05-14T20:55:00-03:00 e usuário diz "daqui 1 minuto" → 2026-05-14T20:56:00-03:00.
 - "hoje" sem hora → null em occurredAt (o app interpreta como agora).
 - "ontem" → data de ontem; se não vier hora, use 12:00 (meio-dia) em -03:00.
 - "anteontem" → dois dias atrás, mesma regra.
@@ -115,6 +116,10 @@ JSON: {"intent":"reminder","amount":null,"category":null,"description":"Comprar 
 Mensagem: "lembrar de comprar pão"
 JSON: {"intent":"reminder","amount":null,"category":null,"description":"Comprar pão","occurredAt":null,"confidence":0.4}
 
+Mensagem: "me lembrar de testar a notificação daqui 1 minuto"
+[Contexto: agora é 2026-05-14T20:55:00-03:00]
+JSON: {"intent":"reminder","amount":null,"category":null,"description":"Testar a notificação","occurredAt":"2026-05-14T20:56:00-03:00","confidence":0.9}
+
 Mensagem: "quanto gastei em mercado esse mês"
 JSON: {"intent":"query","amount":null,"category":null,"description":"Total gasto em mercado neste mês","occurredAt":null,"confidence":0.95}
 
@@ -138,6 +143,6 @@ JSON: {"intent":"unknown","amount":null,"category":null,"description":"Mensagem 
 
 Lembre: APENAS o JSON. Nada mais.`;
 
-export function buildUserMessage(text: string, todayISO: string): string {
-  return `[Contexto: hoje é ${todayISO} no fuso America/Sao_Paulo]\n\nMensagem do usuário: ${text}`;
+export function buildUserMessage(text: string, nowISO: string): string {
+  return `[Contexto: agora é ${nowISO} no fuso America/Sao_Paulo]\n\nMensagem do usuário: ${text}`;
 }

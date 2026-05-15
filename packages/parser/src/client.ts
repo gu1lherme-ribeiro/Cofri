@@ -29,14 +29,13 @@ export type ParseResult = {
 
 const DEFAULT_MAX_TOKENS = 1024;
 
-function isoDateInSaoPaulo(now: Date): string {
-  const fmt = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Sao_Paulo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  return fmt.format(now);
+function nowInSaoPauloISO(now: Date): string {
+  // SP é UTC-3 fixo (Brasil aboliu o horário de verão em 2019), então
+  // basta deslocar o instante e renderizar como se fosse UTC, plugando
+  // o offset literal no fim.
+  const SP_OFFSET_MS = -3 * 60 * 60 * 1000;
+  const sp = new Date(now.getTime() + SP_OFFSET_MS);
+  return `${sp.toISOString().slice(0, 19)}-03:00`;
 }
 
 // O modelo deve devolver APENAS JSON, mas se vier embrulhado em ```json ... ```
@@ -78,8 +77,8 @@ export async function parseMessage(opts: ParseOptions): Promise<ParseResult> {
     model: opts.model,
   });
 
-  const todayISO = isoDateInSaoPaulo(opts.today ?? new Date());
-  const userMessage = buildUserMessage(opts.text, todayISO);
+  const nowISO = nowInSaoPauloISO(opts.today ?? new Date());
+  const userMessage = buildUserMessage(opts.text, nowISO);
 
   const startedAt = Date.now();
   const { text, usage } = await provider.complete({
