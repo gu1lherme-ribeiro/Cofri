@@ -4,7 +4,6 @@ import {
   listReminders,
   reminderFiltersSchema,
 } from "@/lib/reminders";
-import { DashboardHeader } from "../_components/header";
 import { RemindersList } from "./reminders-list";
 import { ScopeFilter } from "./scope-filter";
 
@@ -41,11 +40,8 @@ export default async function AgendaPage({
         : "lembretes agendados";
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-        <DashboardHeader contextLabel="Agenda" />
-
-        <section className="mb-16">
+    <>
+      <section className="mb-16">
           <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted mb-3">
             {scope === "all" ? "Todos os lembretes" : heroLabel.replace(/^[a-z]+ /, "Total ")}
           </p>
@@ -67,10 +63,9 @@ export default async function AgendaPage({
           </div>
         </section>
 
-        <ScopeFilter current={scope} />
+      <ScopeFilter current={scope} />
 
-        <RemindersList items={items} scope={scope} />
-      </div>
-    </main>
+      <RemindersList items={items} scope={scope} />
+    </>
   );
 }

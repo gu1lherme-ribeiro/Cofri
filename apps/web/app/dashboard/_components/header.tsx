@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { DashboardNav } from "./nav";
+import { HeaderContextLabel } from "./header-context-label";
 
-type Props = {
-  contextLabel: string;
-};
-
-export function DashboardHeader({ contextLabel }: Props) {
+export function DashboardHeader() {
   return (
     <header className="mb-16">
       <div className="flex items-baseline justify-between mb-8">
@@ -14,6 +11,7 @@ export function DashboardHeader({ contextLabel }: Props) {
         </p>
         <Link
           href="/conta"
+          prefetch
           className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint hover:text-ink transition-colors duration-[var(--duration-base)]"
         >
           Conta
@@ -21,9 +19,7 @@ export function DashboardHeader({ contextLabel }: Props) {
       </div>
       <div className="flex items-baseline justify-between border-b border-rule pb-2">
         <DashboardNav />
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
-          {contextLabel}
-        </p>
+        <HeaderContextLabel />
       </div>
     </header>
   );

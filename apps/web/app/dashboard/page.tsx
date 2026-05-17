@@ -3,8 +3,6 @@ import {
   listTransactions,
   transactionFiltersSchema,
 } from "@/lib/transactions";
-import { currentMonthLabel } from "@/lib/format";
-import { DashboardHeader } from "./_components/header";
 import { RealtimeDashboard } from "./realtime-dashboard";
 
 export const dynamic = "force-dynamic";
@@ -36,18 +34,12 @@ export default async function DashboardPage({
   const wsUrl = process.env.NEXT_PUBLIC_REALTIME_WS_URL;
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-        <DashboardHeader contextLabel={currentMonthLabel()} />
-
-        <RealtimeDashboard
-          initialItems={items}
-          filters={filters}
-          filterUiCurrent={{ category: sp.category, kind: sp.kind }}
-          filterRevision={`${sp.kind ?? ""}|${sp.category ?? ""}`}
-          wsUrl={wsUrl}
-        />
-      </div>
-    </main>
+    <RealtimeDashboard
+      initialItems={items}
+      filters={filters}
+      filterUiCurrent={{ category: sp.category, kind: sp.kind }}
+      filterRevision={`${sp.kind ?? ""}|${sp.category ?? ""}`}
+      wsUrl={wsUrl}
+    />
   );
 }

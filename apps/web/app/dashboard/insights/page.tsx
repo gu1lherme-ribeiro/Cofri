@@ -1,7 +1,6 @@
 import { currentMonthLabel, formatAmount } from "@/lib/format";
 import { categoryBreakdown, dailySeries } from "@/lib/insights";
 import { requireSessionUserId } from "@/lib/session";
-import { DashboardHeader } from "../_components/header";
 import { CategoryDonut } from "./category-donut";
 import { DailyBars } from "./daily-bars";
 
@@ -18,11 +17,8 @@ export default async function InsightsPage() {
   const last30Expense = daily.reduce((a, d) => a + d.expense, 0);
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-        <DashboardHeader contextLabel="Insights" />
-
-        <section className="mb-16">
+    <>
+      <section className="mb-16">
           <div className="flex items-baseline justify-between mb-6">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted">
               Gastos por categoria · {currentMonthLabel()}
@@ -43,9 +39,8 @@ export default async function InsightsPage() {
               Total {formatAmount(last30Expense)}
             </p>
           </div>
-          <DailyBars data={daily} />
-        </section>
-      </div>
-    </main>
+        <DailyBars data={daily} />
+      </section>
+    </>
   );
 }

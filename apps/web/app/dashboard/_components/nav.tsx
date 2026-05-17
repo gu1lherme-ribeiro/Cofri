@@ -1,24 +1,16 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Tabs } from "./tabs";
 
 const ITEMS = [
-  { value: "/dashboard", label: "Finanças" },
-  { value: "/dashboard/agenda", label: "Agenda" },
-  { value: "/dashboard/insights", label: "Insights" },
-  { value: "/dashboard/orcamento", label: "Orçamento" },
+  { value: "/dashboard", href: "/dashboard", label: "Finanças" },
+  { value: "/dashboard/agenda", href: "/dashboard/agenda", label: "Agenda" },
+  { value: "/dashboard/insights", href: "/dashboard/insights", label: "Insights" },
+  { value: "/dashboard/orcamento", href: "/dashboard/orcamento", label: "Orçamento" },
 ] as const;
 
 export function DashboardNav() {
-  const router = useRouter();
   const pathname = usePathname();
-
-  return (
-    <Tabs
-      items={ITEMS}
-      active={pathname}
-      onChange={(v) => router.push(v)}
-    />
-  );
+  return <Tabs items={ITEMS} active={pathname} />;
 }

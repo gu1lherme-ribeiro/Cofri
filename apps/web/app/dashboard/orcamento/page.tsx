@@ -2,7 +2,6 @@ import { requireSessionUserId } from "@/lib/session";
 import { loadBudgetSummary } from "@/lib/budgets";
 import { CATEGORIES } from "@/lib/transactions";
 import { currentMonthLabel, formatAmount } from "@/lib/format";
-import { DashboardHeader } from "../_components/header";
 import { BudgetList } from "./budget-list";
 
 export const dynamic = "force-dynamic";
@@ -24,11 +23,8 @@ export default async function OrcamentoPage() {
     totalBudgeted > 0 ? Math.min(100, (totalSpent / totalBudgeted) * 100) : 0;
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-        <DashboardHeader contextLabel="Orçamento" />
-
-        <section className="mb-16">
+    <>
+      <section className="mb-16">
           <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted mb-3">
             Orçamento · {currentMonthLabel()}
           </p>
@@ -70,8 +66,7 @@ export default async function OrcamentoPage() {
           )}
         </section>
 
-        <BudgetList initial={rows} />
-      </div>
-    </main>
+      <BudgetList initial={rows} />
+    </>
   );
 }
