@@ -97,12 +97,12 @@ export function BudgetRow({ initial }: Props) {
 
   return (
     <div className="py-4">
-      <div className="flex items-baseline justify-between gap-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <span className="font-display capitalize text-ink">
           {data.category}
         </span>
 
-        <div className="flex items-baseline gap-3 font-mono tabular-nums text-sm">
+        <div className="flex items-baseline gap-3 font-mono tabular-nums text-sm min-w-0">
           {hasBudget && (
             <span className="text-ink-muted">{formatAmount(data.spent)}</span>
           )}

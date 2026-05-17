@@ -19,7 +19,7 @@ export default async function InsightsPage() {
   return (
     <>
       <section className="mb-16">
-          <div className="flex items-baseline justify-between mb-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-6">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted">
               Gastos por categoria · {currentMonthLabel()}
             </h2>
@@ -31,7 +31,7 @@ export default async function InsightsPage() {
         </section>
 
         <section>
-          <div className="flex items-baseline justify-between mb-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-6">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted">
               Gastos diários · últimos 30 dias
             </h2>

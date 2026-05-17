@@ -11,14 +11,15 @@ export default async function ContaPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="max-w-2xl mx-auto px-6 py-12 md:py-16">
-        <header className="mb-16">
-          <div className="flex items-baseline justify-between mb-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-16">
+        <header className="mb-10 md:mb-16">
+          <div className="flex items-baseline justify-between mb-6 md:mb-8">
             <p className="font-display text-[20px] font-bold tracking-[0.35em] text-ink">
               COFRI
             </p>
             <Link
               href="/dashboard"
+              prefetch
               className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint hover:text-ink transition-colors duration-[var(--duration-base)]"
             >
               ← Voltar
@@ -32,7 +33,7 @@ export default async function ContaPage() {
         </header>
 
         <section className="mb-12">
-          <h2 className="font-display text-[1.75rem] font-medium tracking-[-0.01em] text-ink mb-3">
+          <h2 className="font-display text-[1.5rem] sm:text-[1.75rem] font-medium tracking-[-0.01em] text-ink mb-3">
             Sua chave de modelo
           </h2>
           <p className="text-ink-muted max-w-prose leading-relaxed">

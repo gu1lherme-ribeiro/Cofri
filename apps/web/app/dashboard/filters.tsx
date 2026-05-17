@@ -39,7 +39,7 @@ export function Filters({ current }: Props) {
   }
 
   return (
-    <div className="flex items-baseline justify-between gap-6 mb-6 border-b border-rule pb-3">
+    <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 sm:gap-6 mb-6 border-b border-rule pb-3">
       <Tabs
         items={KIND_OPTIONS}
         active={current.kind ?? ""}

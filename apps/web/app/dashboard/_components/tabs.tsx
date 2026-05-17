@@ -56,7 +56,7 @@ export function Tabs({ items, active, onChange, disabled }: Props) {
   return (
     <div
       ref={containerRef}
-      className="relative flex items-baseline gap-7 text-sm"
+      className="no-scrollbar relative flex items-baseline gap-4 sm:gap-7 text-sm overflow-x-auto whitespace-nowrap"
     >
       {items.map((item) => {
         const isActive = item.value === active;

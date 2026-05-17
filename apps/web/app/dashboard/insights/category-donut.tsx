@@ -22,9 +22,9 @@ export function CategoryDonut({ data }: Props) {
   const sorted = [...data].sort((a, b) => b.total - a.total);
 
   return (
-    <div className="grid grid-cols-[220px_1fr] gap-10 items-center">
-      <div className="relative">
-        <ResponsiveContainer width={220} height={220}>
+    <div className="flex flex-col items-center gap-8 sm:grid sm:grid-cols-[220px_1fr] sm:gap-10 sm:items-center">
+      <div className="relative w-[200px] h-[200px] sm:w-[220px] sm:h-[220px]">
+        <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={sorted}
@@ -32,8 +32,8 @@ export function CategoryDonut({ data }: Props) {
               nameKey="category"
               cx="50%"
               cy="50%"
-              innerRadius={72}
-              outerRadius={108}
+              innerRadius="65%"
+              outerRadius="98%"
               paddingAngle={2}
               startAngle={90}
               endAngle={-270}
@@ -61,7 +61,7 @@ export function CategoryDonut({ data }: Props) {
         </div>
       </div>
 
-      <ul className="space-y-2 font-mono text-sm tabular-nums">
+      <ul className="w-full space-y-2 font-mono text-sm tabular-nums">
         {sorted.map((slice) => {
           const pct = total > 0 ? (slice.total / total) * 100 : 0;
           const color =
@@ -69,13 +69,13 @@ export function CategoryDonut({ data }: Props) {
           return (
             <li
               key={slice.category}
-              className="grid grid-cols-[12px_1fr_auto_3.5rem] items-baseline gap-3"
+              className="grid grid-cols-[12px_1fr_auto_3rem] items-baseline gap-3 sm:grid-cols-[12px_1fr_auto_3.5rem]"
             >
               <span
                 className="block w-2 h-2 rounded-full self-center"
                 style={{ background: color }}
               />
-              <span className="text-ink-muted lowercase">
+              <span className="text-ink-muted lowercase truncate">
                 {slice.category}
               </span>
               <span className="text-ink">{formatAmount(slice.total)}</span>

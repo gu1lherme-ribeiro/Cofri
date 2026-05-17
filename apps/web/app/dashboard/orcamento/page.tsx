@@ -24,23 +24,23 @@ export default async function OrcamentoPage() {
 
   return (
     <>
-      <section className="mb-16">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted mb-3">
-            Orçamento · {currentMonthLabel()}
-          </p>
-          <p className="font-mono text-[3.25rem] leading-none tabular-nums text-ink">
-            {totalBudgeted > 0 ? (
-              <>
-                <span className="text-ink">R$ {formatAmount(totalSpent)}</span>
-                <span className="text-ink-faint"> / </span>
-                <span className="text-ink-muted">
-                  R$ {formatAmount(totalBudgeted)}
-                </span>
-              </>
-            ) : (
-              <span className="text-ink-faint">—</span>
-            )}
-          </p>
+      <section className="mb-12 sm:mb-16">
+        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted mb-3">
+          Orçamento · {currentMonthLabel()}
+        </p>
+        <p className="font-mono text-[2rem] sm:text-[3.25rem] leading-tight sm:leading-none tabular-nums text-ink break-words">
+          {totalBudgeted > 0 ? (
+            <>
+              <span className="text-ink">R$ {formatAmount(totalSpent)}</span>
+              <span className="text-ink-faint"> / </span>
+              <span className="text-ink-muted">
+                R$ {formatAmount(totalBudgeted)}
+              </span>
+            </>
+          ) : (
+            <span className="text-ink-faint">—</span>
+          )}
+        </p>
 
           {totalBudgeted > 0 && (
             <div className="mt-5">

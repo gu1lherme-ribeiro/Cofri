@@ -87,18 +87,18 @@ export function ByokForm({ current }: Props) {
             {current.map((row) => (
               <li
                 key={row.provider}
-                className="grid grid-cols-[8rem_1fr_auto] gap-x-6 py-3 items-baseline"
+                className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 py-3 items-baseline sm:grid-cols-[8rem_1fr_auto] sm:gap-x-6"
               >
-                <span className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
+                <span className="row-start-1 col-start-1 font-mono text-xs uppercase tracking-[0.18em] text-ink-faint sm:col-span-1">
                   {PROVIDER_LABEL[row.provider]}
                 </span>
-                <span className="font-mono text-sm text-ink truncate">
+                <span className="row-start-2 col-span-2 font-mono text-sm text-ink truncate sm:row-start-1 sm:col-start-2 sm:col-span-1">
                   {row.preview}
                 </span>
                 <button
                   onClick={() => void remove(row.provider)}
                   disabled={pending}
-                  className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint hover:text-negative transition-colors duration-[var(--duration-base)]"
+                  className="row-start-1 col-start-2 sm:col-start-3 font-mono text-xs uppercase tracking-[0.15em] text-ink-faint hover:text-negative transition-colors duration-[var(--duration-base)] min-h-[44px] sm:min-h-0 flex items-center justify-end"
                 >
                   remover
                 </button>
@@ -115,7 +115,7 @@ export function ByokForm({ current }: Props) {
             : "Adicionar chave"}
         </p>
 
-        <div className="grid grid-cols-[8rem_1fr] gap-x-6 items-center">
+        <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[8rem_1fr] sm:gap-x-6 sm:items-center">
           <label
             htmlFor="provider"
             className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint"
@@ -141,7 +141,7 @@ export function ByokForm({ current }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-[8rem_1fr] gap-x-6 items-baseline">
+        <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[8rem_1fr] sm:gap-x-6 sm:items-baseline">
           <label
             htmlFor="key"
             className="font-mono text-xs uppercase tracking-[0.15em] text-ink-faint"
@@ -166,8 +166,8 @@ export function ByokForm({ current }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-[8rem_1fr] gap-x-6 items-center pt-2">
-          <span />
+        <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[8rem_1fr] sm:gap-x-6 sm:items-center pt-2">
+          <span className="hidden sm:block" />
           <div className="flex items-center gap-6">
             <button
               type="submit"

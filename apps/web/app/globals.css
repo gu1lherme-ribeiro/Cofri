@@ -31,6 +31,15 @@
   --duration-slow: 350ms;
 }
 
+/* tabs e listas com overflow horizontal escondem a barra mas mantêm rolagem por
+ * swipe — Firefox usa scrollbar-width, WebKit/Chromium precisa do pseudo. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes cofri-fade-in {
   from {
     opacity: 0;
@@ -84,15 +93,25 @@
 html {
   background: var(--color-canvas);
   color: var(--color-ink);
+  /* impede o iOS de auto-aumentar texto em rotações de orientação */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   font-family: var(--font-body);
-  font-size: 0.9375rem;
+  /* 16px no mobile evita zoom em inputs no iOS; sobe sutilmente em telas largas */
+  font-size: 1rem;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+@media (min-width: 768px) {
+  body {
+    font-size: 0.9375rem;
+  }
 }
 
 ::selection {
