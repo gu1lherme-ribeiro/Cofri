@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useTransition } from "react";
 import { Tabs } from "../_components/tabs";
 
 const OPTIONS = [
@@ -11,31 +9,14 @@ const OPTIONS = [
 ] as const;
 
 type Props = {
-  current: string;
+  scope: string;
+  onScopeChange: (value: string) => void;
 };
 
-export function ScopeFilter({ current }: Props) {
-  const router = useRouter();
-  const params = useSearchParams();
-  const [pending, startTransition] = useTransition();
-
-  function setScope(value: string) {
-    const next = new URLSearchParams(params);
-    if (value === "upcoming") next.delete("scope");
-    else next.set("scope", value);
-    startTransition(() => {
-      router.push(`/dashboard/agenda?${next.toString()}`);
-    });
-  }
-
+export function ScopeFilter({ scope, onScopeChange }: Props) {
   return (
     <div className="mb-6 border-b border-rule pb-3">
-      <Tabs
-        items={OPTIONS}
-        active={current}
-        onChange={setScope}
-        disabled={pending}
-      />
+      <Tabs items={OPTIONS} active={scope} onChange={onScopeChange} />
     </div>
   );
 }
