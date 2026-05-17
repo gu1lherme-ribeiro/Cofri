@@ -68,7 +68,7 @@ export function formatReminder(r: ReminderPersisted): string {
   const dateLine = relative
     ? `${dateTimeFmt.format(r.dueAt)} · ${relative}`
     : dateTimeFmt.format(r.dueAt);
-  return `⏰ Lembrete · ${r.text}\n${dateLine}`;
+  return `✅ Vou te lembrar de "${r.text}"\n📅 ${dateLine}`;
 }
 
 export function formatReminderNotification(r: ReminderPersisted): string {
