@@ -31,8 +31,17 @@ export default async function DashboardPage({
   });
 
   const filters = parsed.success ? parsed.data : {};
+
+  // Servidor busca o mês inteiro (só filtros de data são aplicados no SQL).
+  // Os filtros kind/category são aplicados no cliente via useMemo — clicar em
+  // "Tudo"/"Gastos"/"Receitas"/categoria não faz round-trip pro server.
+  const fetchFilters = {
+    from: filters.from,
+    to: filters.to,
+  };
+
   const [items, availableCategories] = await Promise.all([
-    listTransactions(userId, filters),
+    listTransactions(userId, fetchFilters),
     loadUserCategories(userId),
   ]);
   const wsUrl = process.env.NEXT_PUBLIC_REALTIME_WS_URL;
@@ -40,9 +49,9 @@ export default async function DashboardPage({
   return (
     <RealtimeDashboard
       initialItems={items}
-      filters={filters}
-      filterUiCurrent={{ category: sp.category, kind: sp.kind }}
-      filterRevision={`${sp.kind ?? ""}|${sp.category ?? ""}`}
+      initialKind={filters.kind ?? ""}
+      initialCategory={filters.category ?? ""}
+      dateFilters={fetchFilters}
       availableCategories={availableCategories}
       wsUrl={wsUrl}
     />
