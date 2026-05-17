@@ -3,6 +3,7 @@ import {
   listTransactions,
   transactionFiltersSchema,
 } from "@/lib/transactions";
+import { loadUserCategories } from "@/lib/categories";
 import { RealtimeDashboard } from "./realtime-dashboard";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +31,10 @@ export default async function DashboardPage({
   });
 
   const filters = parsed.success ? parsed.data : {};
-  const items = await listTransactions(userId, filters);
+  const [items, availableCategories] = await Promise.all([
+    listTransactions(userId, filters),
+    loadUserCategories(userId),
+  ]);
   const wsUrl = process.env.NEXT_PUBLIC_REALTIME_WS_URL;
 
   return (
@@ -39,6 +43,7 @@ export default async function DashboardPage({
       filters={filters}
       filterUiCurrent={{ category: sp.category, kind: sp.kind }}
       filterRevision={`${sp.kind ?? ""}|${sp.category ?? ""}`}
+      availableCategories={availableCategories}
       wsUrl={wsUrl}
     />
   );

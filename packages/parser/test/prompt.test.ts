@@ -53,4 +53,21 @@ describe("buildUserMessage", () => {
     const result = buildUserMessage("linha 1\nlinha 2", "2026-05-13");
     expect(result).toContain("linha 1\nlinha 2");
   });
+
+  it("does not append extra-categories block when list is empty", () => {
+    const result = buildUserMessage("foo", "2026-05-13", []);
+    expect(result).not.toContain("[Categorias adicionais");
+  });
+
+  it("appends extra categories lowercased, sorted, quoted", () => {
+    const result = buildUserMessage("foo", "2026-05-13", ["Pet", "investimento"]);
+    expect(result).toContain(
+      `[Categorias adicionais do usuário: "investimento", "pet"]`,
+    );
+  });
+
+  it("ignores empty/whitespace-only extra categories", () => {
+    const result = buildUserMessage("foo", "2026-05-13", ["  ", "pet", ""]);
+    expect(result).toContain(`[Categorias adicionais do usuário: "pet"]`);
+  });
 });

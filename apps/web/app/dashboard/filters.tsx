@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTransition } from "react";
-import { CATEGORIES } from "@/lib/transactions";
+import { useMemo, useTransition } from "react";
 import { Select } from "./_components/select";
 import { Tabs } from "./_components/tabs";
 
@@ -12,19 +11,22 @@ const KIND_OPTIONS = [
   { value: "income", label: "Receitas" },
 ] as const;
 
-const CATEGORY_OPTIONS = [
-  { value: "", label: "todas" },
-  ...CATEGORIES.map((c) => ({ value: c, label: c })),
-];
-
 type Props = {
   current: {
     category?: string;
     kind?: string;
   };
+  availableCategories: string[];
 };
 
-export function Filters({ current }: Props) {
+export function Filters({ current, availableCategories }: Props) {
+  const categoryOptions = useMemo(
+    () => [
+      { value: "", label: "todas" },
+      ...availableCategories.map((c) => ({ value: c, label: c })),
+    ],
+    [availableCategories],
+  );
   const router = useRouter();
   const params = useSearchParams();
   const [pending, startTransition] = useTransition();
@@ -52,7 +54,7 @@ export function Filters({ current }: Props) {
           Categoria
         </span>
         <Select
-          options={CATEGORY_OPTIONS}
+          options={categoryOptions}
           value={current.category ?? ""}
           onChange={(v) => setParam("category", v)}
           label="Filtrar por categoria"

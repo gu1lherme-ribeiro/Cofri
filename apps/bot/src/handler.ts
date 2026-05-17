@@ -5,6 +5,7 @@ import {
 } from "@cofri/parser";
 import { upsertUserByTelegramId } from "./users.js";
 import { resolveUserApiKey } from "./api-keys.js";
+import { loadUserCustomCategories } from "./categories.js";
 import { persistReminder, persistTransaction } from "./persist.js";
 import {
   REPLIES,
@@ -22,12 +23,22 @@ export async function handleTextMessage(
   const resolved = await resolveUserApiKey(user.id);
   if (!resolved) return REPLIES.noApiKey;
 
+  // Falha aqui não pode derrubar o parse — sem categorias extras o LLM
+  // simplesmente cai na default mais próxima (comportamento antigo).
+  const extraCategories = await loadUserCustomCategories(user.id).catch(
+    (err) => {
+      console.error("[handler] loadUserCustomCategories error:", err);
+      return [] as string[];
+    },
+  );
+
   let result: ParseResult;
   try {
     result = await parseMessage({
       apiKey: resolved.apiKey,
       provider: resolved.provider,
       text,
+      extraCategories,
     });
   } catch (err) {
     console.error("[handler] parser error:", err);

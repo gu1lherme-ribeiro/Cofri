@@ -1,6 +1,7 @@
 import { requireSessionUserId } from "@/lib/session";
 import { loadBudgetSummary } from "@/lib/budgets";
 import { CATEGORIES } from "@/lib/transactions";
+import { isDefaultCategory } from "@/lib/categories";
 import { currentMonthLabel, formatAmount } from "@/lib/format";
 import { BudgetList } from "./budget-list";
 
@@ -10,12 +11,25 @@ export default async function OrcamentoPage() {
   const userId = await requireSessionUserId();
   const summary = await loadBudgetSummary(userId);
 
-  const rows = CATEGORIES.map((c) => ({
+  const defaults = CATEGORIES.map((c) => ({
     category: c,
     monthlyAmount:
       summary.byCategory.find((b) => b.category === c)?.monthlyAmount ?? 0,
     spent: summary.spendByCategory[c] ?? 0,
   }));
+
+  const customs = summary.byCategory
+    .filter((b) => !isDefaultCategory(b.category))
+    .map((b) => ({
+      category: b.category,
+      monthlyAmount: b.monthlyAmount,
+      spent: b.spent,
+    }));
+
+  const existingNames = [
+    ...CATEGORIES,
+    ...customs.map((c) => c.category),
+  ];
 
   const totalBudgeted = summary.totalBudgeted;
   const totalSpent = summary.totalSpent;
@@ -66,7 +80,11 @@ export default async function OrcamentoPage() {
           )}
         </section>
 
-      <BudgetList initial={rows} />
+      <BudgetList
+        defaults={defaults}
+        customs={customs}
+        existingNames={existingNames}
+      />
     </>
   );
 }

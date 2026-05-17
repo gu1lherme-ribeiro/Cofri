@@ -1,6 +1,11 @@
 import { prisma } from "@cofri/db";
 import { z } from "zod";
 
+/**
+ * Categorias default sempre disponíveis. O usuário pode estender essa lista
+ * criando orçamentos custom na página de Orçamento — a categoria custom passa
+ * a valer pra transações também (ver `lib/categories.ts`).
+ */
 export const CATEGORIES = [
   "alimentação",
   "transporte",
@@ -13,10 +18,15 @@ export const CATEGORIES = [
   "outros",
 ] as const;
 
+// Aceita qualquer nome de categoria — validação fina (chars permitidos,
+// tamanho) vive em `normalizeCategoryName`. Aqui só garantimos string não
+// vazia e curta o suficiente pra caber na coluna do banco.
+const categoryString = z.string().trim().min(1).max(30).toLowerCase();
+
 export const transactionFiltersSchema = z.object({
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),
-  category: z.enum(CATEGORIES).optional(),
+  category: categoryString.optional(),
   kind: z.enum(["expense", "income"]).optional(),
 });
 
@@ -25,7 +35,7 @@ export type TransactionFilters = z.infer<typeof transactionFiltersSchema>;
 export const transactionUpdateSchema = z
   .object({
     description: z.string().trim().min(1).max(500).optional(),
-    category: z.enum(CATEGORIES).optional(),
+    category: categoryString.optional(),
     amount: z.number().positive().max(99_999_999.99).optional(),
     occurredAt: z.string().datetime().optional(),
   })

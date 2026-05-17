@@ -11,9 +11,14 @@ type Props = {
    * do <ul> e dispara o fade-in.
    */
   revision?: string;
+  availableCategories: string[];
 };
 
-export function TransactionsTable({ items, revision }: Props) {
+export function TransactionsTable({
+  items,
+  revision,
+  availableCategories,
+}: Props) {
   const sorted = useMemo(
     () =>
       [...items].sort(
@@ -43,7 +48,11 @@ export function TransactionsTable({ items, revision }: Props) {
   return (
     <ul key={revision} className="divide-y divide-rule animate-fade-in">
       {sorted.map((tx) => (
-        <TransactionRow key={tx.id} tx={tx} />
+        <TransactionRow
+          key={tx.id}
+          tx={tx}
+          availableCategories={availableCategories}
+        />
       ))}
     </ul>
   );

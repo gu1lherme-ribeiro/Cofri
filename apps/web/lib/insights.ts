@@ -1,5 +1,4 @@
 import { prisma } from "@cofri/db";
-import { CATEGORIES } from "./transactions";
 
 const TZ_OFFSET_MS = -3 * 60 * 60 * 1000; // America/Sao_Paulo (-03:00, sem DST atual)
 
@@ -53,10 +52,10 @@ export async function categoryBreakdown(
     totals.set(r.category, prev + r.amount.toNumber());
   }
 
-  return CATEGORIES.map((c) => ({
-    category: c,
-    total: totals.get(c) ?? 0,
-  })).filter((s) => s.total > 0);
+  return [...totals.entries()]
+    .map(([category, total]) => ({ category, total }))
+    .filter((s) => s.total > 0)
+    .sort((a, b) => b.total - a.total);
 }
 
 const DEFAULT_DAYS = 30;

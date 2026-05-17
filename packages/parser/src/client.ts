@@ -17,6 +17,10 @@ export type ParseOptions = {
   today?: Date;
   maxTokens?: number;
   signal?: AbortSignal;
+  /** Categorias custom específicas do usuário (além das 9 default). Vão pro
+   *  user message como `[Categorias adicionais do usuário: ...]` — o system
+   *  prompt fica static pra preservar cache hit no Anthropic/OpenAI. */
+  extraCategories?: readonly string[];
 };
 
 export type ParseResult = {
@@ -78,7 +82,11 @@ export async function parseMessage(opts: ParseOptions): Promise<ParseResult> {
   });
 
   const nowISO = nowInSaoPauloISO(opts.today ?? new Date());
-  const userMessage = buildUserMessage(opts.text, nowISO);
+  const userMessage = buildUserMessage(
+    opts.text,
+    nowISO,
+    opts.extraCategories ?? [],
+  );
 
   const startedAt = Date.now();
   const { text, usage } = await provider.complete({

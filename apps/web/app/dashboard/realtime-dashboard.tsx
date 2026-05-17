@@ -20,6 +20,7 @@ type Props = {
   filters: TransactionFilters;
   filterUiCurrent: { category?: string; kind?: string };
   filterRevision: string;
+  availableCategories: string[];
   wsUrl?: string;
 };
 
@@ -59,6 +60,7 @@ export function RealtimeDashboard({
   filters,
   filterUiCurrent,
   filterRevision,
+  availableCategories,
   wsUrl,
 }: Props) {
   const [items, setItems] = useState(initialItems);
@@ -105,9 +107,16 @@ export function RealtimeDashboard({
         count={totals.count}
       />
 
-      <Filters current={filterUiCurrent} />
+      <Filters
+        current={filterUiCurrent}
+        availableCategories={availableCategories}
+      />
 
-      <TransactionsTable items={items} revision={filterRevision} />
+      <TransactionsTable
+        items={items}
+        revision={filterRevision}
+        availableCategories={availableCategories}
+      />
     </>
   );
 }

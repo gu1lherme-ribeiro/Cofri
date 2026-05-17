@@ -10,9 +10,10 @@ import { useMutateTransaction } from "./use-mutate-transaction";
 
 type Props = {
   tx: SerializedTransaction;
+  availableCategories: string[];
 };
 
-export function TransactionRow({ tx }: Props) {
+export function TransactionRow({ tx, availableCategories }: Props) {
   const { update, remove, pending } = useMutateTransaction(tx.id);
   const [confirming, setConfirming] = useState(false);
   const [collapsing, setCollapsing] = useState(false);
@@ -78,6 +79,7 @@ export function TransactionRow({ tx }: Props) {
                 <EditableCategory
                   value={tx.category}
                   pending={pending}
+                  options={availableCategories}
                   onSave={(category) => update({ category })}
                 />
               </div>

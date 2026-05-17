@@ -33,6 +33,14 @@ Use SOMENTE uma destas, em letras minúsculas, com acento exatamente como mostra
 - "trabalho" — gastos de trabalho, freela recebido (se for income), pró-labore, equipamento profissional, curso, cobrança de cliente.
 - "outros" — quando claramente é uma despesa/receita mas não cabe em nenhuma das anteriores. Use só como último recurso.
 
+# Categorias adicionais do usuário
+
+A mensagem do usuário pode incluir, **após** o texto, um bloco no formato:
+
+\`[Categorias adicionais do usuário: "nome1", "nome2", ...]\`
+
+Quando esse bloco vier, considere essas categorias como VÁLIDAS em adição às 9 default acima. Use uma delas em "category" quando a mensagem se encaixar claramente (ex.: usuário cadastrou "pet" e mandou "ração 50" → category: "pet"). Em caso de dúvida, prefira a default mais próxima ao invés de adivinhar. Nomes adicionais sempre em minúsculas, exatamente como aparecem no bloco. Se o bloco não vier, use SOMENTE as 9 default.
+
 # Regras temporais
 
 O contexto no início da mensagem traz **agora** em ISO 8601 com offset -03:00. Use-o como referência absoluta pra qualquer cálculo de data/hora relativa.
@@ -143,6 +151,20 @@ JSON: {"intent":"unknown","amount":null,"category":null,"description":"Mensagem 
 
 Lembre: APENAS o JSON. Nada mais.`;
 
-export function buildUserMessage(text: string, nowISO: string): string {
-  return `[Contexto: agora é ${nowISO} no fuso America/Sao_Paulo]\n\nMensagem do usuário: ${text}`;
+export function buildUserMessage(
+  text: string,
+  nowISO: string,
+  extraCategories: readonly string[] = [],
+): string {
+  const base = `[Contexto: agora é ${nowISO} no fuso America/Sao_Paulo]\n\nMensagem do usuário: ${text}`;
+  if (extraCategories.length === 0) return base;
+  // Mantém formato estável pro prompt: lowercased, ordenado, entre aspas duplas.
+  const list = [...extraCategories]
+    .map((c) => c.trim().toLowerCase())
+    .filter((c) => c.length > 0)
+    .sort((a, b) => a.localeCompare(b, "pt-BR"))
+    .map((c) => `"${c}"`)
+    .join(", ");
+  if (list === "") return base;
+  return `${base}\n\n[Categorias adicionais do usuário: ${list}]`;
 }

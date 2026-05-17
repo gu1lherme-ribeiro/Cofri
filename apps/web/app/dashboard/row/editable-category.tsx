@@ -2,33 +2,34 @@
 
 import { useMemo, useState } from "react";
 import { Select, type SelectOption } from "../_components/select";
-import { CATEGORIES } from "@/lib/transactions";
-
-type Category = (typeof CATEGORIES)[number];
 
 type Props = {
   value: string;
   pending?: boolean;
-  onSave: (next: Category) => Promise<void>;
+  /** Lista de categorias disponíveis pro usuário (default + custom).
+   *  Vem da página/dashboard, que computa via `loadUserCategories`. */
+  options: string[];
+  onSave: (next: string) => Promise<void>;
 };
 
-export function EditableCategory({ value, pending, onSave }: Props) {
+export function EditableCategory({ value, pending, options, onSave }: Props) {
   const [local, setLocal] = useState(value);
   const [error, setError] = useState(false);
 
-  const options = useMemo<SelectOption[]>(
-    () => CATEGORIES.map((c) => ({ value: c, label: c })),
-    [],
-  );
+  const selectOptions = useMemo<SelectOption[]>(() => {
+    // Garante que a categoria atual aparece na lista mesmo se ela foi removida
+    // dos orçamentos depois (transação órfã apontando pra nome antigo).
+    const list = options.includes(local) ? options : [local, ...options];
+    return list.map((c) => ({ value: c, label: c }));
+  }, [options, local]);
 
   async function commit(next: string) {
     if (next === local) return;
-    const typed = next as Category;
     const prev = local;
-    setLocal(typed);
+    setLocal(next);
     setError(false);
     try {
-      await onSave(typed);
+      await onSave(next);
     } catch {
       setLocal(prev);
       setError(true);
@@ -37,7 +38,7 @@ export function EditableCategory({ value, pending, onSave }: Props) {
 
   return (
     <Select
-      options={options}
+      options={selectOptions}
       value={local}
       onChange={(v) => void commit(v)}
       label="Mudar categoria"
