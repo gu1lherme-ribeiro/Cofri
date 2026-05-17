@@ -1,17 +1,17 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { currentMonthLabel } from "@/lib/format";
 
-const LABELS: Record<string, string> = {
-  "/dashboard/agenda": "Agenda",
-  "/dashboard/insights": "Insights",
-  "/dashboard/orcamento": "Orçamento",
-};
-
 export function HeaderContextLabel() {
-  const pathname = usePathname();
-  const label = LABELS[pathname] ?? currentMonthLabel();
+  // Calculado no cliente após hidratação pra evitar mismatch caso o servidor
+  // esteja em outro fuso. O fallback inicial usa o "agora" do render do server.
+  const [label, setLabel] = useState(() => currentMonthLabel());
+
+  useEffect(() => {
+    setLabel(currentMonthLabel());
+  }, []);
+
   return (
     <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
       {label}
