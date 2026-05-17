@@ -118,7 +118,7 @@ export function AddBudgetForm({ existing }: Props) {
             placeholder="pet, investimento, educação…"
             disabled={busy}
             maxLength={30}
-            className="w-full bg-transparent text-ink lowercase border-b border-rule focus:border-accent outline-none py-1.5 transition-colors duration-[var(--duration-base)]"
+            className="w-full bg-transparent text-ink border-b border-rule focus:border-accent outline-none py-1.5 transition-colors duration-[var(--duration-base)]"
           />
         </div>
         <div className="sm:w-40">

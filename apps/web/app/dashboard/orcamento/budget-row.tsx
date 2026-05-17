@@ -201,7 +201,7 @@ export function BudgetRow({ initial, custom = false }: Props) {
                       (e.target as HTMLInputElement).blur();
                     if (e.key === "Escape") setRenaming(false);
                   }}
-                  className="font-display lowercase bg-transparent outline-none border-b border-accent pb-px -mb-px text-ink w-44"
+                  className="font-display bg-transparent outline-none border-b border-accent pb-px -mb-px text-ink w-44"
                 />
               ) : custom ? (
                 <button
