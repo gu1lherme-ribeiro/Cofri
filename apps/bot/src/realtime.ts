@@ -6,7 +6,8 @@ import { env } from "./env.js";
 
 export type RealtimeEvent =
   | { type: "transaction.created"; payload: SerializedTransaction }
-  | { type: "reminder.created"; payload: SerializedReminder };
+  | { type: "reminder.created"; payload: SerializedReminder }
+  | { type: "fixed_expense.created"; payload: SerializedFixedExpense };
 
 export type SerializedTransaction = {
   id: string;
@@ -25,6 +26,18 @@ export type SerializedReminder = {
   dueAt: string;
   notifiedAt: string | null;
   createdAt: string;
+};
+
+export type SerializedFixedExpense = {
+  id: string;
+  name: string;
+  amount: number;
+  dueDay: number;
+  category: string;
+  leadDays: number[];
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 const HEARTBEAT_INTERVAL_MS = 30_000;

@@ -55,17 +55,3 @@ export async function listReminders(
     createdAt: r.createdAt.toISOString(),
   }));
 }
-
-export type ReminderTotals = {
-  upcoming: number;
-  past: number;
-};
-
-export async function countReminders(userId: string): Promise<ReminderTotals> {
-  const now = new Date();
-  const [upcoming, past] = await Promise.all([
-    prisma.reminder.count({ where: { userId, dueAt: { gte: now } } }),
-    prisma.reminder.count({ where: { userId, dueAt: { lt: now } } }),
-  ]);
-  return { upcoming, past };
-}

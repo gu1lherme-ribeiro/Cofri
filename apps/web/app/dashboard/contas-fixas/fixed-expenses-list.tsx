@@ -1,20 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { SerializedFixedExpense } from "@/lib/fixed-expenses";
+import { formatAmount } from "@/lib/format";
+import {
+  useRealtime,
+  type RealtimeEvent,
+} from "@/lib/hooks/use-realtime";
 import { AddFixedExpenseForm } from "./add-fixed-expense-form";
 import { FixedExpenseRow } from "./fixed-expense-row";
 
 type Props = {
   initialItems: SerializedFixedExpense[];
   categories: string[];
+  wsUrl?: string;
 };
 
-export function FixedExpensesList({ initialItems, categories }: Props) {
+export function FixedExpensesList({ initialItems, categories, wsUrl }: Props) {
   const [items, setItems] = useState(initialItems);
 
   function handleCreated(item: SerializedFixedExpense) {
-    setItems((curr) => [...curr, item]);
+    setItems((curr) =>
+      curr.some((i) => i.id === item.id) ? curr : [...curr, item],
+    );
   }
 
   function handleUpdated(item: SerializedFixedExpense) {
@@ -25,23 +33,70 @@ export function FixedExpensesList({ initialItems, categories }: Props) {
     setItems((curr) => curr.filter((i) => i.id !== id));
   }
 
-  const active = items
-    .filter((i) => i.active)
-    .sort(
-      (a, b) =>
-        a.dueDay - b.dueDay ||
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  const handleEvent = useCallback((evt: RealtimeEvent) => {
+    if (evt.type !== "fixed_expense.created") return;
+    const fe = evt.payload;
+    setItems((curr) =>
+      curr.some((i) => i.id === fe.id) ? curr : [...curr, fe],
     );
-  const paused = items
-    .filter((i) => !i.active)
-    .sort(
-      (a, b) =>
-        a.dueDay - b.dueDay ||
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    );
+  }, []);
+
+  const handleReconnect = useCallback(async () => {
+    try {
+      const res = await fetch("/api/fixed-expenses", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as { items: SerializedFixedExpense[] };
+      setItems(data.items);
+    } catch {
+      // próxima reconexão tentará de novo
+    }
+  }, []);
+
+  useRealtime(wsUrl, handleEvent, { onReconnect: handleReconnect });
+
+  const { active, paused, totalMonthly } = useMemo(() => {
+    const sortFn = (a: SerializedFixedExpense, b: SerializedFixedExpense) =>
+      a.dueDay - b.dueDay ||
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    const active = items.filter((i) => i.active).sort(sortFn);
+    const paused = items.filter((i) => !i.active).sort(sortFn);
+    const totalMonthly = active.reduce((s, i) => s + i.amount, 0);
+    return { active, paused, totalMonthly };
+  }, [items]);
 
   return (
     <>
+      <section className="mb-12 sm:mb-16">
+        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted mb-3">
+          Compromisso mensal
+        </p>
+        <p className="font-mono text-[2rem] sm:text-[3.25rem] leading-tight sm:leading-none tabular-nums text-ink break-words">
+          {active.length > 0 ? (
+            <span className="text-ink">R$ {formatAmount(totalMonthly)}</span>
+          ) : (
+            <span className="text-ink-faint">—</span>
+          )}
+        </p>
+
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 sm:gap-x-8 mt-4 font-mono text-sm tabular-nums">
+          <span className="text-ink-muted">
+            <span className="text-ink">{active.length}</span>
+            <span className="ml-1.5 text-ink-faint">
+              {active.length === 1 ? "ativa" : "ativas"}
+            </span>
+          </span>
+          {paused.length > 0 && (
+            <span className="text-ink-muted">
+              <span className="text-ink-faint">{paused.length}</span>
+              <span className="ml-1.5 text-ink-faint">pausadas</span>
+            </span>
+          )}
+        </div>
+      </section>
+
       {items.length === 0 ? (
         <div className="border-t border-rule pt-10">
           <p className="font-mono text-sm text-ink-muted leading-relaxed">

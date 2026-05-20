@@ -5,7 +5,8 @@ import { useEffect, useRef } from "react";
 export type RealtimeEvent =
   | { type: "hello"; payload: { userId: string } }
   | { type: "transaction.created"; payload: RealtimeTransaction }
-  | { type: "reminder.created"; payload: RealtimeReminder };
+  | { type: "reminder.created"; payload: RealtimeReminder }
+  | { type: "fixed_expense.created"; payload: RealtimeFixedExpense };
 
 export type RealtimeTransaction = {
   id: string;
@@ -24,6 +25,18 @@ export type RealtimeReminder = {
   dueAt: string;
   notifiedAt: string | null;
   createdAt: string;
+};
+
+export type RealtimeFixedExpense = {
+  id: string;
+  name: string;
+  amount: number;
+  dueDay: number;
+  category: string;
+  leadDays: number[];
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 type Handler = (event: RealtimeEvent) => void;

@@ -1,5 +1,6 @@
 import { Prisma, prisma } from "@cofri/db";
 import type { ParsedMessage } from "@cofri/parser";
+import { broadcast } from "./realtime.js";
 
 export type FixedExpensePersisted = {
   id: string;
@@ -40,6 +41,21 @@ export async function persistFixedExpense(
       dueDay: parsed.fixedDay,
       category,
       leadDays: [...DEFAULT_LEAD_DAYS],
+    },
+  });
+
+  broadcast(userId, {
+    type: "fixed_expense.created",
+    payload: {
+      id: row.id,
+      name: row.name,
+      amount: row.amount.toNumber(),
+      dueDay: row.dueDay,
+      category: row.category,
+      leadDays: row.leadDays,
+      active: row.active,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
     },
   });
 

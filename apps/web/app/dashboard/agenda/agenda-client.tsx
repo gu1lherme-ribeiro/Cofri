@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { SerializedReminder } from "@/lib/reminders";
+import {
+  useRealtime,
+  type RealtimeEvent,
+} from "@/lib/hooks/use-realtime";
 import { RemindersList } from "./reminders-list";
 import { ScopeFilter } from "./scope-filter";
 
@@ -10,11 +14,15 @@ type Scope = "upcoming" | "past" | "all";
 
 type Props = {
   initialItems: SerializedReminder[];
-  totals: { upcoming: number; past: number };
   initialScope: Scope;
+  wsUrl?: string;
 };
 
-export function AgendaClient({ initialItems, totals, initialScope }: Props) {
+export function AgendaClient({
+  initialItems,
+  initialScope,
+  wsUrl,
+}: Props) {
   const [items, setItems] = useState(initialItems);
   const [scope, setScope] = useState<Scope>(initialScope);
 
@@ -27,6 +35,30 @@ export function AgendaClient({ initialItems, totals, initialScope }: Props) {
   useEffect(() => {
     setScope(initialScope);
   }, [initialScope]);
+
+  const handleEvent = useCallback((evt: RealtimeEvent) => {
+    if (evt.type !== "reminder.created") return;
+    const r = evt.payload;
+    setItems((curr) =>
+      curr.some((i) => i.id === r.id) ? curr : [r, ...curr],
+    );
+  }, []);
+
+  const handleReconnect = useCallback(async () => {
+    try {
+      const res = await fetch("/api/reminders", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as { items: SerializedReminder[] };
+      setItems(data.items);
+    } catch {
+      // próxima reconexão tentará de novo
+    }
+  }, []);
+
+  useRealtime(wsUrl, handleEvent, { onReconnect: handleReconnect });
 
   // Filtra + ordena no cliente. Server entrega todos; troca de scope é
   // instantânea sem round-trip.
@@ -45,6 +77,17 @@ export function AgendaClient({ initialItems, totals, initialScope }: Props) {
       return scope === "past" ? db - da : da - db;
     });
   }, [items, scope]);
+
+  const totals = useMemo(() => {
+    const now = Date.now();
+    let upcoming = 0;
+    let past = 0;
+    for (const r of items) {
+      if (new Date(r.dueAt).getTime() >= now) upcoming++;
+      else past++;
+    }
+    return { upcoming, past };
+  }, [items]);
 
   const heroNumber =
     scope === "past"

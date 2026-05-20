@@ -1,9 +1,5 @@
 import { requireSessionUserId } from "@/lib/session";
-import {
-  countReminders,
-  listReminders,
-  reminderFiltersSchema,
-} from "@/lib/reminders";
+import { listReminders, reminderFiltersSchema } from "@/lib/reminders";
 import { AgendaClient } from "./agenda-client";
 
 export const dynamic = "force-dynamic";
@@ -23,14 +19,18 @@ export default async function AgendaPage({
   const parsed = reminderFiltersSchema.safeParse({ scope: sp.scope });
   const scope = parsed.success ? parsed.data.scope ?? "upcoming" : "upcoming";
 
-  // Server entrega TODOS os lembretes — o cliente filtra por scope via state.
-  // Trocar "Próximos/Passados/Tudo" deixa de fazer SSR round-trip.
-  const [items, totals] = await Promise.all([
-    listReminders(userId, { scope: "all" }),
-    countReminders(userId),
-  ]);
+  // Server entrega TODOS os lembretes — o cliente filtra por scope via state
+  // e deriva os totais (upcoming/past) a partir dos próprios items, o que
+  // permite que o WS empurre lembretes novos sem ficar fora de sincronia.
+  const items = await listReminders(userId, { scope: "all" });
+
+  const wsUrl = process.env.NEXT_PUBLIC_REALTIME_WS_URL;
 
   return (
-    <AgendaClient initialItems={items} totals={totals} initialScope={scope} />
+    <AgendaClient
+      initialItems={items}
+      initialScope={scope}
+      wsUrl={wsUrl}
+    />
   );
 }
