@@ -35,6 +35,69 @@ function formatLeadDays(days: number[]): string {
     .join(" · ");
 }
 
+const MONTH_NAMES = [
+  "jan", "fev", "mar", "abr", "mai", "jun",
+  "jul", "ago", "set", "out", "nov", "dez",
+];
+
+function monthYearLabel(monthKey: string): string {
+  const m = /^(\d{4})-(\d{2})$/.exec(monthKey);
+  if (!m) return monthKey;
+  const monthIdx = Number(m[2]) - 1;
+  return `${MONTH_NAMES[monthIdx]}/${m[1]}`;
+}
+
+function currentMonthKeySP(): string {
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+  });
+  const parts = fmt.formatToParts(new Date());
+  const y = parts.find((p) => p.type === "year")?.value ?? "2026";
+  const mo = parts.find((p) => p.type === "month")?.value ?? "01";
+  return `${y}-${mo}`;
+}
+
+function monthsBetween(from: string, to: string): number | null {
+  const a = /^(\d{4})-(\d{2})$/.exec(from);
+  const b = /^(\d{4})-(\d{2})$/.exec(to);
+  if (!a || !b) return null;
+  return (Number(b[1]) - Number(a[1])) * 12 + (Number(b[2]) - Number(a[2]));
+}
+
+function lastInstallmentMonth(start: string, total: number): string {
+  const m = /^(\d{4})-(\d{2})$/.exec(start);
+  if (!m) return start;
+  const idx = (Number(m[1]) * 12 + Number(m[2]) - 1) + (total - 1);
+  return `${Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, "0")}`;
+}
+
+/**
+ * Linha curta resumindo a duração da conta:
+ * - recorrente sem prazo → null (não mostra nada)
+ * - parcelada ativa → "parcela X/N · termina mai/2027"
+ * - parcelada concluída → "concluída em mai/2027"
+ */
+function durationLabel(data: {
+  installmentsTotal: number | null;
+  installmentsStartMonth: string | null;
+  completedAt: string | null;
+}): string | null {
+  if (!data.installmentsTotal || !data.installmentsStartMonth) return null;
+  const last = lastInstallmentMonth(
+    data.installmentsStartMonth,
+    data.installmentsTotal,
+  );
+  if (data.completedAt) {
+    return `concluída em ${monthYearLabel(last)}`;
+  }
+  const today = currentMonthKeySP();
+  const delta = monthsBetween(data.installmentsStartMonth, today);
+  const current = delta == null ? 1 : Math.max(1, Math.min(data.installmentsTotal, delta + 1));
+  return `parcela ${current}/${data.installmentsTotal} · termina ${monthYearLabel(last)}`;
+}
+
 export function FixedExpenseRow({
   initial,
   categories,
@@ -251,6 +314,18 @@ export function FixedExpenseRow({
               <span title="Lembretes antes do vencimento">
                 avisos: {formatLeadDays(data.leadDays)}
               </span>
+              {(() => {
+                const dur = durationLabel(data);
+                if (!dur) return null;
+                return (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span className={data.completedAt ? "text-positive" : ""}>
+                      {dur}
+                    </span>
+                  </>
+                );
+              })()}
               <span aria-hidden>·</span>
               <button
                 onClick={() => setExpanded((e) => !e)}

@@ -6,6 +6,8 @@ const MAX_LEAD_DAY = 7;
 const MIN_LEAD_DAY = 0;
 const NAME_RE = /^[\p{L}\d](?:[\p{L}\d \-_./&]*[\p{L}\d.])?$/u;
 const MAX_NAME_LEN = 40;
+const MAX_INSTALLMENTS = 120; // 10 anos — cobre financiamentos longos
+const MONTH_KEY_RE = /^(\d{4})-(0[1-9]|1[0-2])$/;
 
 function normalizeName(raw: string): string | null {
   const trimmed = raw.trim();
@@ -22,12 +24,33 @@ const leadDaysSchema = z
   .max(MAX_LEAD_DAY + 1)
   .transform((arr) => Array.from(new Set(arr)).sort((a, b) => a - b));
 
+// Aceita ou "installmentsTotal" (número de parcelas) ou "endMonth"
+// ("YYYY-MM" do último vencimento). Os dois reduzem ao mesmo modelo no banco
+// (installmentsTotal + installmentsStartMonth), via deriveInstallments abaixo.
+const durationSchema = z
+  .object({
+    kind: z.literal("recurring"),
+  })
+  .or(
+    z.object({
+      kind: z.literal("installments"),
+      total: z.number().int().min(2).max(MAX_INSTALLMENTS),
+    }),
+  )
+  .or(
+    z.object({
+      kind: z.literal("endMonth"),
+      endMonth: z.string().regex(MONTH_KEY_RE, "invalid_month"),
+    }),
+  );
+
 export const fixedExpenseCreateSchema = z.object({
   name: z.string().trim().min(1).max(MAX_NAME_LEN),
   amount: z.number().positive().max(99_999_999.99),
   dueDay: z.number().int().min(1).max(31),
   category: z.string().trim().min(1).max(30),
   leadDays: leadDaysSchema.optional(),
+  duration: durationSchema.optional(),
 });
 
 export type FixedExpenseCreateInput = z.infer<typeof fixedExpenseCreateSchema>;
@@ -40,6 +63,7 @@ export const fixedExpenseUpdateSchema = z
     category: z.string().trim().min(1).max(30).optional(),
     leadDays: leadDaysSchema.optional(),
     active: z.boolean().optional(),
+    duration: durationSchema.optional(),
   })
   .refine((d) => Object.keys(d).length > 0, {
     message: "no fields to update",
@@ -55,6 +79,9 @@ export type SerializedFixedExpense = {
   category: string;
   leadDays: number[];
   active: boolean;
+  installmentsTotal: number | null;
+  installmentsStartMonth: string | null;
+  completedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -81,6 +108,9 @@ function serialize(row: {
   category: string;
   leadDays: number[];
   active: boolean;
+  installmentsTotal: number | null;
+  installmentsStartMonth: string | null;
+  completedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }): SerializedFixedExpense {
@@ -92,9 +122,71 @@ function serialize(row: {
     category: row.category,
     leadDays: row.leadDays,
     active: row.active,
+    installmentsTotal: row.installmentsTotal,
+    installmentsStartMonth: row.installmentsStartMonth,
+    completedAt: row.completedAt ? row.completedAt.toISOString() : null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
+}
+
+// Calcula o próximo mês de vencimento >= hoje em SP timezone, como "YYYY-MM".
+function nextDueMonthSP(dueDay: number): string {
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const parts = fmt.formatToParts(new Date());
+  const year = Number(parts.find((p) => p.type === "year")?.value);
+  const month = Number(parts.find((p) => p.type === "month")?.value);
+  const day = Number(parts.find((p) => p.type === "day")?.value);
+
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const cap = Math.min(dueDay, daysInMonth);
+
+  // Se o vencimento deste mês ainda não passou, começa este mês.
+  if (cap >= day) return `${year}-${String(month).padStart(2, "0")}`;
+  // Caso contrário, começa no próximo mês.
+  const ny = month === 12 ? year + 1 : year;
+  const nm = month === 12 ? 1 : month + 1;
+  return `${ny}-${String(nm).padStart(2, "0")}`;
+}
+
+function monthsInclusive(from: string, to: string): number | null {
+  const a = MONTH_KEY_RE.exec(from);
+  const b = MONTH_KEY_RE.exec(to);
+  if (!a || !b) return null;
+  const ay = Number(a[1]);
+  const am = Number(a[2]);
+  const by = Number(b[1]);
+  const bm = Number(b[2]);
+  return (by - ay) * 12 + (bm - am) + 1;
+}
+
+/**
+ * Converte o input de duração (recurring / installments / endMonth) nos campos
+ * persistidos no banco. `endMonth` é resolvido relativo ao próximo vencimento
+ * em SP. Retorna { total: null, start: null } pra recorrente sem fim.
+ */
+function deriveInstallments(
+  dueDay: number,
+  duration?: FixedExpenseCreateInput["duration"],
+): { total: number | null; start: string | null } {
+  if (!duration || duration.kind === "recurring") {
+    return { total: null, start: null };
+  }
+  const start = nextDueMonthSP(dueDay);
+  if (duration.kind === "installments") {
+    return { total: duration.total, start };
+  }
+  // endMonth
+  const total = monthsInclusive(start, duration.endMonth);
+  if (total == null || total < 2 || total > MAX_INSTALLMENTS) {
+    throw new FixedExpenseValidationError("invalid_end_month");
+  }
+  return { total, start };
 }
 
 export async function listFixedExpenses(
@@ -102,7 +194,14 @@ export async function listFixedExpenses(
 ): Promise<SerializedFixedExpense[]> {
   const rows = await prisma.fixedExpense.findMany({
     where: { userId },
-    orderBy: [{ active: "desc" }, { dueDay: "asc" }, { createdAt: "asc" }],
+    // Ativas primeiro, concluídas (completedAt) por último na lista crua —
+    // o cliente reordena/filtra por seção (ativas/pausadas/concluídas).
+    orderBy: [
+      { completedAt: "asc" },
+      { active: "desc" },
+      { dueDay: "asc" },
+      { createdAt: "asc" },
+    ],
   });
   return rows.map(serialize);
 }
@@ -116,6 +215,8 @@ export async function createFixedExpense(
   const category = normalizeCategoryName(input.category);
   if (!category) throw new FixedExpenseValidationError("invalid_category");
 
+  const installments = deriveInstallments(input.dueDay, input.duration);
+
   const row = await prisma.fixedExpense.create({
     data: {
       userId,
@@ -124,6 +225,8 @@ export async function createFixedExpense(
       dueDay: input.dueDay,
       category,
       leadDays: input.leadDays ?? [1, 2],
+      installmentsTotal: installments.total,
+      installmentsStartMonth: installments.start,
     },
   });
   return serialize(row);
@@ -156,6 +259,17 @@ export async function updateFixedExpense(
   }
   if (input.leadDays !== undefined) data.leadDays = input.leadDays;
   if (input.active !== undefined) data.active = input.active;
+  if (input.duration !== undefined) {
+    // Trocar duração reinicia o cronômetro: usa o dueDay novo se também
+    // veio no payload, senão o vigente.
+    const effectiveDueDay = input.dueDay ?? existing.dueDay;
+    const installments = deriveInstallments(effectiveDueDay, input.duration);
+    data.installmentsTotal = installments.total;
+    data.installmentsStartMonth = installments.start;
+    // Se o usuário reativou uma duração nova, zera o completedAt pra que o
+    // notifier volte a processar.
+    if (existing.completedAt) data.completedAt = null;
+  }
 
   const row = await prisma.fixedExpense.update({
     where: { id },

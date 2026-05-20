@@ -28,6 +28,16 @@ export const ParsedMessageSchema = z.object({
   // Preenchido só pra intent "fixed_expense": dia do mês (1-31) em que a conta
   // vence todos os meses. null/ausente nos demais intents.
   fixedDay: z.number().int().min(1).max(31).nullable().optional(),
+  // Parcelamento opcional pra "fixed_expense". Quando informado, marca a conta
+  // como finita; ao passar do último vencimento o bot envia parabéns e
+  // arquiva a conta. Limite alto (120 = 10 anos) pra cobrir financiamentos.
+  installmentsTotal: z
+    .number()
+    .int()
+    .min(2)
+    .max(120)
+    .nullable()
+    .optional(),
   confidence: z.number().min(0).max(1),
 });
 

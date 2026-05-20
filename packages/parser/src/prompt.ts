@@ -10,6 +10,7 @@ Devolva um objeto JSON com EXATAMENTE estes campos:
 - "description": uma descrição curta, humanizada, em português, do que aconteceu. Para fixed_expense, é o NOME da conta (ex.: "Faculdade", "Aluguel", "Netflix"). Limpa de gírias, sem emoji, sem aspas.
 - "occurredAt": data/hora em ISO 8601 com offset -03:00 (America/Sao_Paulo), ou null se a mensagem não tiver referência temporal explícita e o intent não exigir uma data. Para expense/income sem indicação de quando, devolva null (o app trata como "agora"). Para fixed_expense, devolva null (a data não é uma ocorrência única — use fixedDay).
 - "fixedDay": inteiro de 1 a 31 indicando o dia do mês em que a conta fixa vence. Preencher APENAS quando intent é "fixed_expense". null nos demais intents.
+- "installmentsTotal": inteiro de 2 a 120 indicando o número total de parcelas/meses da conta fixa, quando o usuário informa um prazo finito ("por 6 meses", "6x", "6 vezes", "6 parcelas", "até dezembro/2027"). Preencher APENAS quando intent é "fixed_expense" E houver indicação clara de prazo. null/omitido para contas fixas recorrentes sem prazo (caso default).
 - "confidence": número entre 0.0 e 1.0 indicando o quão confiante você está no parse como um todo. Use < 0.6 quando qualquer campo for ambíguo, contraditório ou impossível de inferir com segurança.
 
 # Definição de cada intent
@@ -65,6 +66,12 @@ O contexto no início da mensagem traz **agora** em ISO 8601 com offset -03:00. 
 - category segue a mesma taxonomia abaixo. Use "casa" pra aluguel/condomínio/luz/água/gás/internet. "assinatura" pra streaming/Notion/iCloud. "saúde" pra plano de saúde/academia mensal. "trabalho" pra cursos recorrentes. "outros" como último recurso.
 - Frases que NÃO são fixed_expense, mesmo parecendo: "paguei a faculdade hoje 800" → expense (já foi paga). "lembrar de pagar luz dia 15" sem "todo mês" → reminder (lembrete pontual). "todo dia eu gasto uns 50 com almoço" → query/unknown (média, não conta fixa).
 - Frases que SÃO fixed_expense: presença de "todo dia X" / "todo mês" / "mensalmente" / "fixa" / "vence dia X" combinada com um nome de conta e um valor.
+- Parcelamento ("installmentsTotal"): se a mensagem indica prazo finito, traduza para o total de meses/parcelas.
+  - "por 6 meses", "durante 6 meses", "6x", "6 vezes", "em 6 parcelas", "6 parcelas" → installmentsTotal: 6.
+  - "12 parcelas no cartão", "parcelei em 12" → 12.
+  - "até dezembro/2027" ou "até dez/2027" → conte os meses do PRÓXIMO vencimento (com base no contexto de "agora") até o mês informado, inclusive. Ex.: agora é maio/2026, "até dez/2027" → 20 parcelas (jun/2026, jul/2026, ..., dez/2027). Use o próximo vencimento (mês corrente se dueDay ainda não passou, próximo mês caso contrário) como 1ª parcela.
+  - "até quitar", "até o fim", sem prazo claro → installmentsTotal null (recorrente).
+  - Sem nenhuma indicação de prazo → installmentsTotal null/omitido (caso default, conta recorrente).
 
 # Regras específicas de reminder
 
@@ -172,6 +179,19 @@ JSON: {"intent":"fixed_expense","amount":120,"category":"casa","description":"In
 
 Mensagem: "academia 99 todo mês dia 20"
 JSON: {"intent":"fixed_expense","amount":99,"category":"saúde","description":"Academia","occurredAt":null,"fixedDay":20,"confidence":0.92}
+
+Mensagem: "cartão da loja 200 todo dia 10 por 6x"
+JSON: {"intent":"fixed_expense","amount":200,"category":"outros","description":"Cartão da loja","occurredAt":null,"fixedDay":10,"installmentsTotal":6,"confidence":0.92}
+
+Mensagem: "financiamento moto 450 mensal dia 15 em 24 parcelas"
+JSON: {"intent":"fixed_expense","amount":450,"category":"transporte","description":"Financiamento moto","occurredAt":null,"fixedDay":15,"installmentsTotal":24,"confidence":0.92}
+
+Mensagem: "curso online 120 todo dia 5 por 12 meses"
+JSON: {"intent":"fixed_expense","amount":120,"category":"trabalho","description":"Curso online","occurredAt":null,"fixedDay":5,"installmentsTotal":12,"confidence":0.92}
+
+Mensagem: "aluguel temporada 1500 todo dia 1 até dez/2027"
+[Contexto: agora é 2026-05-20T10:00:00-03:00]
+JSON: {"intent":"fixed_expense","amount":1500,"category":"casa","description":"Aluguel temporada","occurredAt":null,"fixedDay":1,"installmentsTotal":20,"confidence":0.88}
 
 Mensagem: "Faculdade todo dia 10"
 JSON: {"intent":"fixed_expense","amount":null,"category":"trabalho","description":"Faculdade","occurredAt":null,"fixedDay":10,"confidence":0.4}

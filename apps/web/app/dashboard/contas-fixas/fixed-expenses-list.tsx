@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import type { SerializedFixedExpense } from "@/lib/fixed-expenses";
 import { formatAmount } from "@/lib/format";
+import { useCountUp } from "@/lib/hooks/use-count-up";
 import {
   useRealtime,
   type RealtimeEvent,
@@ -34,11 +35,22 @@ export function FixedExpensesList({ initialItems, categories, wsUrl }: Props) {
   }
 
   const handleEvent = useCallback((evt: RealtimeEvent) => {
-    if (evt.type !== "fixed_expense.created") return;
-    const fe = evt.payload;
-    setItems((curr) =>
-      curr.some((i) => i.id === fe.id) ? curr : [...curr, fe],
-    );
+    if (evt.type === "fixed_expense.created") {
+      const fe = evt.payload;
+      setItems((curr) =>
+        curr.some((i) => i.id === fe.id) ? curr : [...curr, fe],
+      );
+      return;
+    }
+    if (evt.type === "fixed_expense.completed") {
+      const { id, completedAt } = evt.payload;
+      setItems((curr) =>
+        curr.map((i) =>
+          i.id === id ? { ...i, completedAt, active: false } : i,
+        ),
+      );
+      return;
+    }
   }, []);
 
   const handleReconnect = useCallback(async () => {
@@ -57,15 +69,27 @@ export function FixedExpensesList({ initialItems, categories, wsUrl }: Props) {
 
   useRealtime(wsUrl, handleEvent, { onReconnect: handleReconnect });
 
-  const { active, paused, totalMonthly } = useMemo(() => {
+  const { active, paused, completed, totalMonthly } = useMemo(() => {
     const sortFn = (a: SerializedFixedExpense, b: SerializedFixedExpense) =>
       a.dueDay - b.dueDay ||
       new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    const active = items.filter((i) => i.active).sort(sortFn);
-    const paused = items.filter((i) => !i.active).sort(sortFn);
+    // Concluídas (completedAt) saem das listas Ativas/Pausadas e vão pra
+    // própria seção, ordenadas pelo dia da conclusão (mais recente primeiro).
+    const completed = items
+      .filter((i) => i.completedAt)
+      .sort(
+        (a, b) =>
+          new Date(b.completedAt!).getTime() -
+          new Date(a.completedAt!).getTime(),
+      );
+    const live = items.filter((i) => !i.completedAt);
+    const active = live.filter((i) => i.active).sort(sortFn);
+    const paused = live.filter((i) => !i.active).sort(sortFn);
     const totalMonthly = active.reduce((s, i) => s + i.amount, 0);
-    return { active, paused, totalMonthly };
+    return { active, paused, completed, totalMonthly };
   }, [items]);
+
+  const animTotalMonthly = useCountUp(totalMonthly);
 
   return (
     <>
@@ -75,7 +99,7 @@ export function FixedExpensesList({ initialItems, categories, wsUrl }: Props) {
         </p>
         <p className="font-mono text-[2rem] sm:text-[3.25rem] leading-tight sm:leading-none tabular-nums text-ink break-words">
           {active.length > 0 ? (
-            <span className="text-ink">R$ {formatAmount(totalMonthly)}</span>
+            <span className="text-ink">R$ {formatAmount(animTotalMonthly)}</span>
           ) : (
             <span className="text-ink-faint">—</span>
           )}
@@ -92,6 +116,14 @@ export function FixedExpensesList({ initialItems, categories, wsUrl }: Props) {
             <span className="text-ink-muted">
               <span className="text-ink-faint">{paused.length}</span>
               <span className="ml-1.5 text-ink-faint">pausadas</span>
+            </span>
+          )}
+          {completed.length > 0 && (
+            <span className="text-ink-muted">
+              <span className="text-positive">{completed.length}</span>
+              <span className="ml-1.5 text-ink-faint">
+                {completed.length === 1 ? "concluída" : "concluídas"}
+              </span>
             </span>
           )}
         </div>
@@ -135,6 +167,26 @@ export function FixedExpensesList({ initialItems, categories, wsUrl }: Props) {
               </p>
               <ul className="border-t border-rule">
                 {paused.map((row) => (
+                  <li key={row.id} className="border-b border-rule">
+                    <FixedExpenseRow
+                      initial={row}
+                      categories={categories}
+                      onUpdated={handleUpdated}
+                      onDeleted={handleDeleted}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {completed.length > 0 && (
+            <>
+              <p className="mt-10 mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted">
+                Concluídas
+              </p>
+              <ul className="border-t border-rule">
+                {completed.map((row) => (
                   <li key={row.id} className="border-b border-rule">
                     <FixedExpenseRow
                       initial={row}

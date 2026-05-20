@@ -103,6 +103,14 @@ model FixedExpense {
   category  String                   // mesma taxonomia do Transaction
   leadDays  Int[]                    // dias antes do vencimento p/ avisar (1-7); default [1, 2]
   active    Boolean  @default(true)
+  // Parcelamento / prazo finito. Quando installmentsTotal é null, a conta é
+  // recorrente sem fim. Quando preenchido, installmentsStartMonth marca o
+  // mês ("YYYY-MM") da 1ª parcela; a última parcela cai em
+  // start + (total - 1) meses, no mesmo dueDay. Ao passar do último
+  // vencimento, o bot envia parabéns e seta completedAt.
+  installmentsTotal      Int?
+  installmentsStartMonth String?
+  completedAt            DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

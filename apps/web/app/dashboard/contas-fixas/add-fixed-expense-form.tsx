@@ -6,6 +6,8 @@ import { LeadDaysPicker } from "./lead-days-picker";
 
 const DEFAULT_LEAD = [1, 2];
 
+type DurationKind = "recurring" | "installments" | "endMonth";
+
 function parseAmount(raw: string): number | null {
   const t = raw.trim();
   if (t === "") return null;
@@ -21,6 +23,34 @@ function parseDay(raw: string): number | null {
   return n;
 }
 
+function parseInstallments(raw: string): number | null {
+  const n = Number(raw.trim());
+  if (!Number.isInteger(n) || n < 2 || n > 120) return null;
+  return n;
+}
+
+// "12/2027" ou "12/27" → "2027-12". Aceita também "2027-12" direto.
+function parseEndMonth(raw: string): string | null {
+  const t = raw.trim();
+  if (!t) return null;
+  const slash = /^(\d{1,2})\/(\d{2}|\d{4})$/.exec(t);
+  if (slash) {
+    const month = Number(slash[1]);
+    let year = Number(slash[2]);
+    if (month < 1 || month > 12) return null;
+    if (year < 100) year = 2000 + year;
+    if (year < 2000 || year > 2100) return null;
+    return `${year}-${String(month).padStart(2, "0")}`;
+  }
+  const iso = /^(\d{4})-(\d{2})$/.exec(t);
+  if (iso) {
+    const month = Number(iso[2]);
+    if (month < 1 || month > 12) return null;
+    return t;
+  }
+  return null;
+}
+
 type Props = {
   categories: string[];
   onCreated: (item: SerializedFixedExpense) => void;
@@ -33,6 +63,9 @@ export function AddFixedExpenseForm({ categories, onCreated }: Props) {
   const [dueDay, setDueDay] = useState("");
   const [category, setCategory] = useState(categories[0] ?? "casa");
   const [leadDays, setLeadDays] = useState<number[]>(DEFAULT_LEAD);
+  const [durationKind, setDurationKind] = useState<DurationKind>("recurring");
+  const [installments, setInstallments] = useState("");
+  const [endMonth, setEndMonth] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -42,6 +75,9 @@ export function AddFixedExpenseForm({ categories, onCreated }: Props) {
     setDueDay("");
     setCategory(categories[0] ?? "casa");
     setLeadDays(DEFAULT_LEAD);
+    setDurationKind("recurring");
+    setInstallments("");
+    setEndMonth("");
     setError(null);
   }
 
@@ -69,6 +105,23 @@ export function AddFixedExpenseForm({ categories, onCreated }: Props) {
       return;
     }
 
+    let duration: unknown = { kind: "recurring" };
+    if (durationKind === "installments") {
+      const parsedN = parseInstallments(installments);
+      if (parsedN === null) {
+        setError("Informe um número de parcelas entre 2 e 120.");
+        return;
+      }
+      duration = { kind: "installments", total: parsedN };
+    } else if (durationKind === "endMonth") {
+      const parsedEnd = parseEndMonth(endMonth);
+      if (!parsedEnd) {
+        setError("Informe um mês/ano válido (ex.: 12/2027).");
+        return;
+      }
+      duration = { kind: "endMonth", endMonth: parsedEnd };
+    }
+
     setSaving(true);
     try {
       const res = await fetch(`/api/fixed-expenses`, {
@@ -80,6 +133,7 @@ export function AddFixedExpenseForm({ categories, onCreated }: Props) {
           dueDay: parsedDay,
           category,
           leadDays,
+          duration,
         }),
       });
       if (!res.ok) {
@@ -89,7 +143,9 @@ export function AddFixedExpenseForm({ categories, onCreated }: Props) {
             ? "Nome inválido. Use letras, números, espaço, hífen ou _."
             : j.error === "invalid_category"
               ? "Categoria inválida."
-              : "Não consegui cadastrar.",
+              : j.error === "invalid_end_month"
+                ? "Mês final inválido ou muito distante."
+                : "Não consegui cadastrar.",
         );
         return;
       }
@@ -202,6 +258,88 @@ export function AddFixedExpenseForm({ categories, onCreated }: Props) {
             ))}
           </select>
         </div>
+      </div>
+
+      <div>
+        <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint mb-2">
+          Duração
+        </p>
+        <div className="flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs">
+          {([
+            ["recurring", "recorrente sem prazo"],
+            ["installments", "parcelado (Nx)"],
+            ["endMonth", "com prazo final"],
+          ] as const).map(([kind, label]) => (
+            <label
+              key={kind}
+              className="flex items-center gap-2 cursor-pointer text-ink-faint hover:text-ink transition-colors duration-[var(--duration-base)]"
+            >
+              <input
+                type="radio"
+                name="duration-kind"
+                value={kind}
+                checked={durationKind === kind}
+                onChange={() => setDurationKind(kind)}
+                disabled={saving}
+                className="accent-accent"
+              />
+              <span className={durationKind === kind ? "text-ink" : ""}>
+                {label}
+              </span>
+            </label>
+          ))}
+        </div>
+
+        {durationKind === "installments" && (
+          <div className="mt-3 max-w-[180px]">
+            <label
+              htmlFor="new-fe-installments"
+              className="block font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint mb-1"
+            >
+              Total de parcelas
+            </label>
+            <input
+              id="new-fe-installments"
+              type="text"
+              inputMode="numeric"
+              value={installments}
+              onChange={(e) => setInstallments(e.target.value)}
+              placeholder="ex.: 12"
+              disabled={saving}
+              maxLength={3}
+              className="w-full bg-transparent text-ink font-mono tabular-nums border-b border-rule focus:border-accent outline-none py-1.5 transition-colors duration-[var(--duration-base)]"
+            />
+            <p className="mt-1 font-mono text-[10px] text-ink-faint leading-relaxed">
+              A 1ª parcela é o próximo vencimento; o bot te parabeniza quando a
+              última for paga.
+            </p>
+          </div>
+        )}
+
+        {durationKind === "endMonth" && (
+          <div className="mt-3 max-w-[180px]">
+            <label
+              htmlFor="new-fe-endmonth"
+              className="block font-mono text-[10px] uppercase tracking-[0.15em] text-ink-faint mb-1"
+            >
+              Último mês (MM/AAAA)
+            </label>
+            <input
+              id="new-fe-endmonth"
+              type="text"
+              inputMode="numeric"
+              value={endMonth}
+              onChange={(e) => setEndMonth(e.target.value)}
+              placeholder="ex.: 12/2027"
+              disabled={saving}
+              maxLength={7}
+              className="w-full bg-transparent text-ink font-mono tabular-nums border-b border-rule focus:border-accent outline-none py-1.5 transition-colors duration-[var(--duration-base)]"
+            />
+            <p className="mt-1 font-mono text-[10px] text-ink-faint leading-relaxed">
+              A conta dura do próximo vencimento até esse mês, inclusive.
+            </p>
+          </div>
+        )}
       </div>
 
       <div>

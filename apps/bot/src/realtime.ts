@@ -7,7 +7,11 @@ import { env } from "./env.js";
 export type RealtimeEvent =
   | { type: "transaction.created"; payload: SerializedTransaction }
   | { type: "reminder.created"; payload: SerializedReminder }
-  | { type: "fixed_expense.created"; payload: SerializedFixedExpense };
+  | { type: "fixed_expense.created"; payload: SerializedFixedExpense }
+  | {
+      type: "fixed_expense.completed";
+      payload: { id: string; completedAt: string };
+    };
 
 export type SerializedTransaction = {
   id: string;
@@ -36,6 +40,9 @@ export type SerializedFixedExpense = {
   category: string;
   leadDays: number[];
   active: boolean;
+  installmentsTotal: number | null;
+  installmentsStartMonth: string | null;
+  completedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };

@@ -6,7 +6,11 @@ export type RealtimeEvent =
   | { type: "hello"; payload: { userId: string } }
   | { type: "transaction.created"; payload: RealtimeTransaction }
   | { type: "reminder.created"; payload: RealtimeReminder }
-  | { type: "fixed_expense.created"; payload: RealtimeFixedExpense };
+  | { type: "fixed_expense.created"; payload: RealtimeFixedExpense }
+  | {
+      type: "fixed_expense.completed";
+      payload: { id: string; completedAt: string };
+    };
 
 export type RealtimeTransaction = {
   id: string;
@@ -35,6 +39,9 @@ export type RealtimeFixedExpense = {
   category: string;
   leadDays: number[];
   active: boolean;
+  installmentsTotal: number | null;
+  installmentsStartMonth: string | null;
+  completedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };

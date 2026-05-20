@@ -1,67 +1,39 @@
 import type { Bot } from "grammy";
 import { GrammyError } from "grammy";
 import { Prisma, prisma } from "@cofri/db";
-import { formatFixedExpenseReminder } from "./format.js";
+import { formatFixedExpenseCompleted, formatFixedExpenseReminder } from "./format.js";
+import { broadcast } from "./realtime.js";
+import {
+  addMonths,
+  daysInMonth,
+  dayInTZ,
+  diffInDays,
+  monthKey,
+  monthsInclusive,
+  nextDueDate,
+  parseMonthKey,
+  type DayInTZ,
+} from "./fixed-expense-time.js";
 
-const TZ = "America/Sao_Paulo";
-
-type DayInTZ = { year: number; month: number; day: number };
-
-function dayInTZ(d: Date, tz: string = TZ): DayInTZ {
-  const fmt = new Intl.DateTimeFormat("en-CA", {
-    timeZone: tz,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  const parts = fmt.formatToParts(d);
-  return {
-    year: Number(parts.find((p) => p.type === "year")?.value),
-    month: Number(parts.find((p) => p.type === "month")?.value),
-    day: Number(parts.find((p) => p.type === "day")?.value),
-  };
-}
-
-function daysInMonth(year: number, month: number): number {
-  // month 1-12. Day 0 do mês seguinte = último dia do mês corrente.
-  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+function periodOf(d: DayInTZ): string {
+  return monthKey(d.year, d.month);
 }
 
 /**
- * Calcula o próximo vencimento (em SP) >= hoje, considerando que
- * dueDay pode ser maior que o número de dias do mês (ex.: dueDay=31
- * em fevereiro vira o último dia do mês).
+ * Última data de vencimento para contas com prazo finito.
+ * Retorna null se a conta não é parcelada.
  */
-function nextDueDate(today: DayInTZ, dueDay: number): DayInTZ {
-  const tryMonth = (year: number, month: number): DayInTZ => {
-    const cap = Math.min(dueDay, daysInMonth(year, month));
-    return { year, month, day: cap };
-  };
-  const thisMonth = tryMonth(today.year, today.month);
-  if (
-    thisMonth.year > today.year ||
-    thisMonth.month > today.month ||
-    (thisMonth.year === today.year &&
-      thisMonth.month === today.month &&
-      thisMonth.day >= today.day)
-  ) {
-    return thisMonth;
-  }
-  const nextMonth =
-    today.month === 12
-      ? { year: today.year + 1, month: 1 }
-      : { year: today.year, month: today.month + 1 };
-  return tryMonth(nextMonth.year, nextMonth.month);
-}
-
-function diffInDays(a: DayInTZ, b: DayInTZ): number {
-  const aUTC = Date.UTC(a.year, a.month - 1, a.day);
-  const bUTC = Date.UTC(b.year, b.month - 1, b.day);
-  return Math.round((aUTC - bUTC) / 86_400_000);
-}
-
-function periodOf(d: DayInTZ): string {
-  return `${d.year}-${String(d.month).padStart(2, "0")}`;
+function lastDueDate(
+  installmentsTotal: number | null,
+  installmentsStartMonth: string | null,
+  dueDay: number,
+): DayInTZ | null {
+  if (!installmentsTotal || !installmentsStartMonth) return null;
+  const start = parseMonthKey(installmentsStartMonth);
+  if (!start) return null;
+  const last = addMonths(start.year, start.month, installmentsTotal - 1);
+  const day = Math.min(dueDay, daysInMonth(last.year, last.month));
+  return { year: last.year, month: last.month, day };
 }
 
 const BATCH_LIMIT = 200;
@@ -70,13 +42,15 @@ const BATCH_LIMIT = 200;
  * Varre contas fixas ativas e dispara mensagens nos dias-aviso (leadDays).
  * Dedup via FixedExpenseNotification (unique em [fixedExpenseId, period, leadDay]).
  *
- * Roda no mesmo loop do notifier de Reminder (intervalo 60s). Idempotente.
+ * Para contas com prazo finito (installmentsTotal preenchido), ao passar do
+ * último vencimento envia mensagem de parabéns e arquiva (active=false +
+ * completedAt). Roda no mesmo loop do notifier de Reminder (60s). Idempotente.
  */
 export async function processDueFixedExpenses(bot: Bot): Promise<void> {
   const today = dayInTZ(new Date());
 
   const rows = await prisma.fixedExpense.findMany({
-    where: { active: true },
+    where: { active: true, completedAt: null },
     include: { user: true },
     take: BATCH_LIMIT,
   });
@@ -85,6 +59,17 @@ export async function processDueFixedExpenses(bot: Bot): Promise<void> {
 
   let sent = 0;
   for (const fe of rows) {
+    // 1) Conta parcelada chegou ao fim? Envia parabéns e arquiva.
+    const lastDue = lastDueDate(
+      fe.installmentsTotal,
+      fe.installmentsStartMonth,
+      fe.dueDay,
+    );
+    if (lastDue && diffInDays(today, lastDue) > 0) {
+      await completeFixedExpense(bot, fe, lastDue);
+      continue;
+    }
+
     const due = nextDueDate(today, fe.dueDay);
     const daysUntil = diffInDays(due, today);
 
@@ -108,12 +93,28 @@ export async function processDueFixedExpenses(bot: Bot): Promise<void> {
       throw err;
     }
 
+    // Se for parcelada, calcula "parcela X de N" pra exibir no lembrete.
+    let installment: { current: number; total: number } | undefined;
+    if (fe.installmentsTotal && fe.installmentsStartMonth) {
+      const start = parseMonthKey(fe.installmentsStartMonth);
+      if (start) {
+        const current = monthsInclusive(start, {
+          year: due.year,
+          month: due.month,
+        });
+        if (current >= 1 && current <= fe.installmentsTotal) {
+          installment = { current, total: fe.installmentsTotal };
+        }
+      }
+    }
+
     const message = formatFixedExpenseReminder({
       name: fe.name,
       amount: fe.amount.toNumber(),
       dueDay: fe.dueDay,
       daysUntil,
       category: fe.category,
+      installment,
     });
 
     try {
@@ -141,6 +142,47 @@ export async function processDueFixedExpenses(bot: Bot): Promise<void> {
       `[fixed-notifier] dispatched ${sent} fixed-expense reminder(s) at ${new Date().toISOString()}`,
     );
   }
+}
+
+type FixedExpenseWithUser = Awaited<
+  ReturnType<typeof prisma.fixedExpense.findMany>
+>[number] & { user: { id: string; telegramId: bigint } };
+
+async function completeFixedExpense(
+  bot: Bot,
+  fe: FixedExpenseWithUser,
+  lastDue: DayInTZ,
+): Promise<void> {
+  // Idempotência: a query principal filtra `completedAt: null`, mas pra
+  // garantir contra corridas usamos updateMany com `completedAt: null` no
+  // where. Se zero linhas afetadas, outro tick já mandou.
+  const res = await prisma.fixedExpense.updateMany({
+    where: { id: fe.id, completedAt: null },
+    data: { completedAt: new Date(), active: false },
+  });
+  if (res.count === 0) return;
+
+  const message = formatFixedExpenseCompleted({
+    name: fe.name,
+    amount: fe.amount.toNumber(),
+    installmentsTotal: fe.installmentsTotal ?? 0,
+    lastDueLabel: `${String(lastDue.day).padStart(2, "0")}/${String(lastDue.month).padStart(2, "0")}/${lastDue.year}`,
+  });
+
+  try {
+    await bot.api.sendMessage(Number(fe.user.telegramId), message);
+  } catch (err) {
+    console.error(
+      `[fixed-notifier] failed to send completion message fe=${fe.id} (${describeError(err)})`,
+    );
+  }
+
+  broadcast(fe.user.id, {
+    type: "fixed_expense.completed",
+    payload: { id: fe.id, completedAt: new Date().toISOString() },
+  });
+
+  console.log(`[fixed-notifier] completed fe=${fe.id}`);
 }
 
 function isUniqueViolation(err: unknown): boolean {

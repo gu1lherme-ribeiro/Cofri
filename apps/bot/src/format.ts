@@ -96,18 +96,68 @@ export function formatReminderNotification(r: ReminderPersisted): string {
   );
 }
 
+function monthYearLabel(monthKey: string): string {
+  // "YYYY-MM" → "mai/2026"
+  const m = /^(\d{4})-(\d{2})$/.exec(monthKey);
+  if (!m) return monthKey;
+  const year = m[1];
+  const monthIdx = Number(m[2]) - 1;
+  const names = [
+    "jan", "fev", "mar", "abr", "mai", "jun",
+    "jul", "ago", "set", "out", "nov", "dez",
+  ];
+  return `${names[monthIdx]}/${year}`;
+}
+
+function lastDueMonthKey(
+  startMonth: string,
+  totalInstallments: number,
+): string {
+  const m = /^(\d{4})-(\d{2})$/.exec(startMonth);
+  if (!m) return startMonth;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const totalIdx = (year * 12 + (month - 1)) + (totalInstallments - 1);
+  const newYear = Math.floor(totalIdx / 12);
+  const newMonth = (totalIdx % 12) + 1;
+  return `${newYear}-${String(newMonth).padStart(2, "0")}`;
+}
+
 export function formatFixedExpense(fe: FixedExpensePersisted): string {
   const leadList = [...fe.leadDays].sort((a, b) => b - a).join(" e ");
-  return (
-    `✅ Conta fixa cadastrada com sucesso\n\n` +
-    `🏷️ Nome: ${fe.name}\n` +
-    `💰 Valor: ${moneyFmt.format(fe.amount)}\n` +
-    `📅 Vence: todo dia ${fe.dueDay}\n` +
-    `📂 Categoria: ${fe.category}\n` +
-    `🔔 Lembretes: ${leadList} dia(s) antes do vencimento\n\n` +
+  const lines = [
+    `✅ Conta fixa cadastrada com sucesso\n`,
+    `🏷️ Nome: ${fe.name}`,
+    `💰 Valor: ${moneyFmt.format(fe.amount)}`,
+    `📅 Vence: todo dia ${fe.dueDay}`,
+    `📂 Categoria: ${fe.category}`,
+    `🔔 Lembretes: ${leadList} dia(s) antes do vencimento`,
+  ];
+
+  if (fe.installmentsTotal && fe.installmentsStartMonth) {
+    const lastMonth = lastDueMonthKey(
+      fe.installmentsStartMonth,
+      fe.installmentsTotal,
+    );
+    lines.push(
+      `📆 Parcelado: ${fe.installmentsTotal}x ` +
+        `(${monthYearLabel(fe.installmentsStartMonth)} a ${monthYearLabel(lastMonth)})`,
+    );
+  }
+
+  lines.push(
+    "",
     `Vou te avisar automaticamente nos dias configurados. ` +
-    `Pra mudar valor, dia ou lembretes, abre /dashboard → Contas Fixas.`
+      `Pra mudar valor, dia ou lembretes, abre /dashboard → Contas Fixas.`,
   );
+
+  if (fe.installmentsTotal) {
+    lines.push(
+      `Quando a última parcela for paga, te mando um recado especial. 💪`,
+    );
+  }
+
+  return lines.join("\n");
 }
 
 export type FixedExpenseReminderInput = {
@@ -116,6 +166,8 @@ export type FixedExpenseReminderInput = {
   dueDay: number;
   daysUntil: number;
   category: string;
+  /** Quando preenchido, mostra "Parcela X de N" no lembrete. */
+  installment?: { current: number; total: number };
 };
 
 export function formatFixedExpenseReminder(
@@ -127,11 +179,39 @@ export function formatFixedExpenseReminder(
       : input.daysUntil === 1
         ? "vence amanhã"
         : `vence em ${input.daysUntil} dias`;
+  const lines = [
+    `🔔 Lembrete de conta fixa\n`,
+    `📝 Lembre-se de pagar ${input.name} dia ${input.dueDay} (${whenLabel}).\n`,
+    `💰 Valor: ${moneyFmt.format(input.amount)}`,
+    `📂 Categoria: ${input.category}`,
+  ];
+  if (input.installment) {
+    lines.push(
+      `📆 Parcela ${input.installment.current} de ${input.installment.total}`,
+    );
+  }
+  return lines.join("\n");
+}
+
+export type FixedExpenseCompletedInput = {
+  name: string;
+  amount: number;
+  installmentsTotal: number;
+  lastDueLabel: string;
+};
+
+export function formatFixedExpenseCompleted(
+  input: FixedExpenseCompletedInput,
+): string {
   return (
-    `🔔 Lembrete de conta fixa\n\n` +
-    `📝 Lembre-se de pagar ${input.name} dia ${input.dueDay} (${whenLabel}).\n\n` +
-    `💰 Valor: ${moneyFmt.format(input.amount)}\n` +
-    `📂 Categoria: ${input.category}`
+    `🎉 Parabéns! Você quitou ${input.name}!\n\n` +
+    `Você fechou as ${input.installmentsTotal} parcelas de ` +
+    `${moneyFmt.format(input.amount)} — a última venceu em ${input.lastDueLabel}.\n\n` +
+    `Manter um compromisso financeiro mensal até o fim exige organização, ` +
+    `responsabilidade e disciplina. Isso é construir liberdade financeira na ` +
+    `prática. Tô orgulhoso de você. 💪\n\n` +
+    `A conta foi arquivada automaticamente — você ainda pode ver o histórico ` +
+    `em /dashboard → Contas Fixas → Concluídas.`
   );
 }
 
