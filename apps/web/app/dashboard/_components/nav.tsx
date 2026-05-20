@@ -8,6 +8,7 @@ const ITEMS = [
   { value: "/dashboard/agenda", href: "/dashboard/agenda", label: "Agenda" },
   { value: "/dashboard/insights", href: "/dashboard/insights", label: "Insights" },
   { value: "/dashboard/orcamento", href: "/dashboard/orcamento", label: "Orçamento" },
+  { value: "/dashboard/contas-fixas", href: "/dashboard/contas-fixas", label: "Contas Fixas" },
 ] as const;
 
 export function DashboardNav() {

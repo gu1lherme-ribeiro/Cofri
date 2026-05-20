@@ -9,10 +9,12 @@ export function createBot(): Bot {
   bot.command("start", (ctx) =>
     ctx.reply(
       "Oi! Eu sou o Cofri 🐾\n\n" +
-        "Me manda um gasto, receita ou lembrete em linguagem natural — eu interpreto, organizo e confirmo. Por exemplo:\n\n" +
-        "• \"gastei 45 no almoço\"\n" +
-        "• \"recebi 2000 de freela ontem\"\n" +
-        "• \"lembrar de pagar luz dia 15\"\n\n" +
+        "Manda um gasto, receita, lembrete ou conta fixa em linguagem natural — eu interpreto, organizo e confirmo. Por exemplo:\n\n" +
+        "💸 \"gastei 45 no almoço\"\n" +
+        "💰 \"recebi 2000 de freela ontem\"\n" +
+        "⏰ \"lembrar de ligar pro Carlos sexta 14h\"\n" +
+        "🔖 \"Faculdade 800 todo dia 10\"\n\n" +
+        "Pra contas fixas eu envio lembretes automáticos 1 e 2 dias antes do vencimento.\n\n" +
         "Quando quiser ver tudo organizado, manda /dashboard — eu envio um link mágico que expira em 10 minutos.",
     ),
   );
@@ -25,7 +27,10 @@ export function createBot(): Bot {
       });
     } catch (err) {
       console.error("[bot] /dashboard error:", err);
-      await ctx.reply("Ops, não consegui gerar o link agora. Tenta de novo?");
+      await ctx.reply(
+        "😕 Não consegui gerar o link de acesso agora.\n\n" +
+          "Pode ser instabilidade momentânea — tenta /dashboard de novo em alguns segundos.",
+      );
     }
   });
 

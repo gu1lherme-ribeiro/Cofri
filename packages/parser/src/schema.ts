@@ -13,11 +13,21 @@ export const CATEGORIES = [
 ] as const;
 
 export const ParsedMessageSchema = z.object({
-  intent: z.enum(["expense", "income", "reminder", "query", "unknown"]),
+  intent: z.enum([
+    "expense",
+    "income",
+    "reminder",
+    "query",
+    "fixed_expense",
+    "unknown",
+  ]),
   amount: z.number().nullable(),
   category: z.string().nullable(),
   description: z.string(),
   occurredAt: z.string().nullable(),
+  // Preenchido só pra intent "fixed_expense": dia do mês (1-31) em que a conta
+  // vence todos os meses. null/ausente nos demais intents.
+  fixedDay: z.number().int().min(1).max(31).nullable().optional(),
   confidence: z.number().min(0).max(1),
 });
 

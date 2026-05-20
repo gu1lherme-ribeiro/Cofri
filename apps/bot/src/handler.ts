@@ -7,9 +7,11 @@ import { upsertUserByTelegramId } from "./users.js";
 import { resolveUserApiKey } from "./api-keys.js";
 import { loadUserCustomCategories } from "./categories.js";
 import { persistReminder, persistTransaction } from "./persist.js";
+import { persistFixedExpense } from "./fixed-expenses.js";
 import {
   REPLIES,
   formatBudgetCrossing,
+  formatFixedExpense,
   formatReminder,
   formatTransaction,
 } from "./format.js";
@@ -73,6 +75,12 @@ export async function handleTextMessage(
       if (!parsed.occurredAt) return REPLIES.missingDueAt;
       const r = await persistReminder(user.id, parsed);
       return formatReminder(r);
+    }
+    case "fixed_expense": {
+      if (parsed.amount == null) return REPLIES.missingAmountFixed;
+      if (parsed.fixedDay == null) return REPLIES.missingDueDay;
+      const fe = await persistFixedExpense(user.id, parsed);
+      return formatFixedExpense(fe);
     }
     case "query":
       return REPLIES.queryNotYet;

@@ -2,14 +2,15 @@ import type { Bot } from "grammy";
 import { GrammyError } from "grammy";
 import { prisma } from "@cofri/db";
 import { formatReminderNotification } from "./format.js";
+import { processDueFixedExpenses } from "./fixed-expense-notifier.js";
 
 const TICK_MS = 60_000;
 const BATCH_LIMIT = 50;
 
 /**
- * Loop que dispara notificações de lembretes vencidos. Single-instance:
- * roda no mesmo processo do bot, sem fila externa. `notifiedAt` na tabela
- * Reminder serve como cursor — depois de enviado fica preenchido.
+ * Loop que dispara notificações de lembretes vencidos e avisos de contas
+ * fixas. Single-instance: roda no mesmo processo do bot, sem fila externa.
+ * `notifiedAt` em Reminder e `FixedExpenseNotification` servem de cursor.
  */
 export function startReminderNotifier(bot: Bot): () => void {
   let stopped = false;
@@ -20,6 +21,11 @@ export function startReminderNotifier(bot: Bot): () => void {
       await processDueReminders(bot);
     } catch (err) {
       console.error("[notifier] tick error:", err);
+    }
+    try {
+      await processDueFixedExpenses(bot);
+    } catch (err) {
+      console.error("[notifier] fixed-expense tick error:", err);
     }
   }
 
