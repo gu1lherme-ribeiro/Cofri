@@ -1,6 +1,7 @@
-import { currentMonthLabel, formatAmount } from "@/lib/format";
+import { currentMonthLabel } from "@/lib/format";
 import { categoryBreakdown, dailySeries } from "@/lib/insights";
 import { requireSessionUserId } from "@/lib/session";
+import { AnimatedAmount } from "./animated-amount";
 import { CategoryDonut } from "./category-donut";
 import { DailyBars } from "./daily-bars";
 
@@ -24,7 +25,7 @@ export default async function InsightsPage() {
               Gastos por categoria · {currentMonthLabel()}
             </h2>
             <p className="font-mono text-xs text-ink-faint tabular-nums">
-              Total {formatAmount(monthExpenseTotal)}
+              Total <AnimatedAmount value={monthExpenseTotal} />
             </p>
           </div>
           <CategoryDonut data={byCategory} />
@@ -36,7 +37,7 @@ export default async function InsightsPage() {
               Gastos diários · últimos 30 dias
             </h2>
             <p className="font-mono text-xs text-ink-faint tabular-nums">
-              Total {formatAmount(last30Expense)}
+              Total <AnimatedAmount value={last30Expense} />
             </p>
           </div>
         <DailyBars data={daily} />

@@ -3,6 +3,7 @@
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { CATEGORY_COLORS } from "@/lib/chart-colors";
 import { formatAmount } from "@/lib/format";
+import { useCountUp } from "@/lib/hooks/use-count-up";
 import type { CategorySlice } from "@/lib/insights";
 
 type Props = {
@@ -10,6 +11,9 @@ type Props = {
 };
 
 export function CategoryDonut({ data }: Props) {
+  const total = data.reduce((acc, d) => acc + d.total, 0);
+  const animTotal = useCountUp(total);
+
   if (data.length === 0) {
     return (
       <div className="py-12 text-center">
@@ -18,7 +22,6 @@ export function CategoryDonut({ data }: Props) {
     );
   }
 
-  const total = data.reduce((acc, d) => acc + d.total, 0);
   const sorted = [...data].sort((a, b) => b.total - a.total);
 
   return (
@@ -56,7 +59,7 @@ export function CategoryDonut({ data }: Props) {
             Total
           </p>
           <p className="font-mono text-lg tabular-nums text-ink mt-1">
-            {formatAmount(total)}
+            {formatAmount(animTotal)}
           </p>
         </div>
       </div>
