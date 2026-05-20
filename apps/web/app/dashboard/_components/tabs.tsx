@@ -60,7 +60,9 @@ export function Tabs({ items, active, onChange, disabled }: Props) {
     >
       {items.map((item) => {
         const isActive = item.value === active;
-        const className = `relative pb-3 -mb-3 transition-colors duration-[var(--duration-base)] ${
+        // pt-2 -mt-2 + pb-3 -mb-3 estendem a área tap-able pra ~44px no mobile
+        // sem afetar o baseline visual (negative margins compensam).
+        const className = `relative pt-2 -mt-2 pb-3 -mb-3 transition-colors duration-[var(--duration-base)] ${
           isActive ? "text-ink" : "text-ink-muted hover:text-ink"
         }`;
         const setRef = (el: HTMLButtonElement | HTMLAnchorElement | null) => {

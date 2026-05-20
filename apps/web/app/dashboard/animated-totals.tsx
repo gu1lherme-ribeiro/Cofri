@@ -18,12 +18,13 @@ export function AnimatedTotals({ income, expense, count }: Props) {
   const netClass = animNet < 0 ? "text-negative" : "text-positive";
 
   return (
-    <section className="mb-12 sm:mb-16">
+    <section className="mb-12 sm:mb-14 lg:mb-16">
       <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted mb-3">
         Balanço do mês
       </p>
       <p
-        className={`font-mono text-[2.5rem] sm:text-[3.25rem] leading-none tabular-nums ${netClass}`}
+        className={`font-mono leading-none tabular-nums break-words ${netClass}`}
+        style={{ fontSize: "var(--text-hero)" }}
       >
         {netSign}
         {formatAmount(Math.abs(animNet))}

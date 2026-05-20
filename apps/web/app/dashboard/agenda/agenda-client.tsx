@@ -121,11 +121,14 @@ export function AgendaClient({
 
   return (
     <>
-      <section className="mb-12 sm:mb-16">
+      <section className="mb-12 sm:mb-14 lg:mb-16">
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted mb-3">
           {heroLabel}
         </p>
-        <p className="font-mono text-[2.5rem] sm:text-[3.25rem] leading-none tabular-nums text-ink">
+        <p
+          className="font-mono leading-none tabular-nums text-ink"
+          style={{ fontSize: "var(--text-hero)" }}
+        >
           {heroNumber}
         </p>
 

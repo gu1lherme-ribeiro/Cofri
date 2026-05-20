@@ -26,12 +26,15 @@ export default async function AuthError({
 
   return (
     <main className="min-h-screen flex items-center">
-      <div className="max-w-xl mx-auto px-4 sm:px-6 py-8 md:py-12">
-        <p className="font-display text-[24px] sm:text-[28px] font-bold tracking-[0.35em] text-ink mb-10 sm:mb-16">
+      <div className="cofri-shell-narrow w-full">
+        <p className="font-display text-[clamp(1.375rem,3.5vw,1.875rem)] font-bold tracking-[0.35em] text-ink mb-10 sm:mb-14 lg:mb-16">
           COFRI
         </p>
 
-        <h1 className="font-display text-[2rem] sm:text-[2.5rem] leading-[1.05] font-medium tracking-[-0.02em] text-ink mb-8">
+        <h1
+          className="font-display leading-[1.05] font-medium tracking-[-0.02em] text-ink mb-8"
+          style={{ fontSize: "var(--text-h1)" }}
+        >
           {line1}
           <br />
           {line2}

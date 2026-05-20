@@ -29,7 +29,7 @@ export function LeadDaysPicker({ value, onChange, disabled }: Props) {
             onClick={() => toggle(day)}
             disabled={disabled}
             className={[
-              "font-mono text-[11px] uppercase tracking-[0.15em] px-3 py-1.5 rounded-full border transition-[color,background-color,border-color] duration-[var(--duration-base)]",
+              "font-mono text-[11px] uppercase tracking-[0.15em] px-3 py-2 sm:py-1.5 rounded-full border transition-[color,background-color,border-color] duration-[var(--duration-base)]",
               selected
                 ? "bg-accent/10 text-accent border-accent"
                 : "bg-transparent text-ink-faint border-rule hover:text-ink hover:border-ink-faint",

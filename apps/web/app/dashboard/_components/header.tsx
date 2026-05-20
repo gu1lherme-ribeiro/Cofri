@@ -4,9 +4,9 @@ import { HeaderContextLabel } from "./header-context-label";
 
 export function DashboardHeader() {
   return (
-    <header className="mb-10 md:mb-16">
+    <header className="mb-10 md:mb-14 lg:mb-16">
       <div className="flex items-baseline justify-between mb-6 md:mb-8">
-        <p className="font-display text-[20px] font-bold tracking-[0.35em] text-ink">
+        <p className="font-display text-[clamp(1.125rem,2vw,1.5rem)] font-bold tracking-[0.35em] text-ink">
           COFRI
         </p>
         <Link

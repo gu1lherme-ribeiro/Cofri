@@ -7,7 +7,7 @@ export default function DashboardLayout({
 }) {
   return (
     <main className="min-h-screen">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 md:py-16">
+      <div className="cofri-shell">
         <DashboardHeader />
         {children}
       </div>

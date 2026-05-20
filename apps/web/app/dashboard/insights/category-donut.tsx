@@ -25,8 +25,8 @@ export function CategoryDonut({ data }: Props) {
   const sorted = [...data].sort((a, b) => b.total - a.total);
 
   return (
-    <div className="flex flex-col items-center gap-8 sm:grid sm:grid-cols-[220px_1fr] sm:gap-10 sm:items-center">
-      <div className="relative w-[200px] h-[200px] sm:w-[220px] sm:h-[220px]">
+    <div className="flex flex-col items-center gap-8 sm:grid sm:grid-cols-[220px_1fr] sm:gap-10 sm:items-center lg:grid-cols-[260px_1fr] lg:gap-12">
+      <div className="relative w-[clamp(180px,55vw,260px)] aspect-square sm:w-[220px] sm:h-[220px] lg:w-[260px] lg:h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

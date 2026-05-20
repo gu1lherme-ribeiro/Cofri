@@ -29,6 +29,18 @@
   --duration-fast: 150ms;
   --duration-base: 220ms;
   --duration-slow: 350ms;
+
+  /* Tipografia fluida — números grandes do hero crescem suavemente
+   * de mobile pequeno (320px) até desktop largo (1920+).
+   * 2.25rem (36px) ≤ valor ≤ 4rem (64px), interpolando com a viewport. */
+  --text-hero: clamp(2.25rem, 6vw, 4rem);
+  --text-hero-compact: clamp(2rem, 5.5vw, 3.5rem);
+  --text-h2: clamp(1.5rem, 2.5vw, 2rem);
+  --text-h1: clamp(2rem, 4vw, 2.75rem);
+
+  /* Espaçamento fluido pras laterais do container — ganha respiro em
+   * notebook/desktop sem aumentar a max-w (o canvas é parte da identidade). */
+  --layout-px: clamp(1rem, 4vw, 2rem);
 }
 
 /* tabs e listas com overflow horizontal escondem a barra mas mantêm rolagem por
@@ -100,17 +112,53 @@ html {
 
 body {
   font-family: var(--font-body);
-  /* 16px no mobile evita zoom em inputs no iOS; sobe sutilmente em telas largas */
+  /* 16px no mobile (evita auto-zoom em inputs no iOS); 15px no desktop pra
+   * priorizar densidade — combina com a estética "Estúdio de contagem". */
   font-size: 1rem;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* respeita notches/safe areas em iPhones; container usa env() abaixo */
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Container compartilhado pelas páginas. Substitui o padrão antigo
+ * `max-w-3xl mx-auto px-4 sm:px-6 py-8 md:py-16` por um padding fluido
+ * que respira em telas largas sem inflar o canvas (que é parte da identidade).
+ * Safe-area pra notches do iPhone em landscape. */
+.cofri-shell {
+  max-width: 48rem; /* 768px — equivalente a max-w-3xl */
+  margin-inline: auto;
+  padding-inline: max(var(--layout-px), env(safe-area-inset-left));
+  padding-block: clamp(1.5rem, 4vw, 4rem);
+}
+
+@media (min-width: 1280px) {
+  .cofri-shell {
+    max-width: 52rem; /* 832px — pequeno respiro extra em xl+ */
+  }
+}
+
+/* Variante mais estreita pra páginas de "leitura" (landing, conta).
+ * Mantém o mesmo padding fluido. */
+.cofri-shell-narrow {
+  max-width: 36rem; /* 576px */
+  margin-inline: auto;
+  padding-inline: max(var(--layout-px), env(safe-area-inset-left));
+  padding-block: clamp(1.5rem, 4vw, 3rem);
 }
 
 @media (min-width: 768px) {
-  body {
-    font-size: 0.9375rem;
+  .cofri-shell-narrow {
+    max-width: 42rem; /* 672px */
   }
 }
 

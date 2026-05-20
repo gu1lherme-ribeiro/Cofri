@@ -222,7 +222,7 @@ export const Select = forwardRef<SelectHandle, Props>(function Select(
       disabled={disabled}
       onClick={toggle}
       {...ariaProps}
-      className="flex items-center gap-2 bg-transparent text-ink py-1 pl-2 pr-1 -mr-1 focus:outline-none focus:text-accent transition-colors duration-[var(--duration-base)] text-sm disabled:opacity-50"
+      className="flex items-center gap-2 bg-transparent text-ink py-2 sm:py-1 pl-2 pr-1 -mr-1 focus:outline-none focus:text-accent transition-colors duration-[var(--duration-base)] text-sm disabled:opacity-50"
     >
       <span>{current?.label ?? "—"}</span>
       <svg

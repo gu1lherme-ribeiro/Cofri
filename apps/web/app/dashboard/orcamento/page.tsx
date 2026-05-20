@@ -38,11 +38,14 @@ export default async function OrcamentoPage() {
 
   return (
     <>
-      <section className="mb-12 sm:mb-16">
+      <section className="mb-12 sm:mb-14 lg:mb-16">
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted mb-3">
           Orçamento · {currentMonthLabel()}
         </p>
-        <p className="font-mono text-[2rem] sm:text-[3.25rem] leading-tight sm:leading-none tabular-nums text-ink break-words">
+        <p
+          className="font-mono leading-tight sm:leading-none tabular-nums text-ink break-words"
+          style={{ fontSize: "var(--text-hero-compact)" }}
+        >
           {totalBudgeted > 0 ? (
             <>
               <span className="text-ink">R$ {formatAmount(totalSpent)}</span>
