@@ -10,7 +10,7 @@ Devolva um objeto JSON com EXATAMENTE estes campos:
 - "description": uma descrição curta, humanizada, em português, do que aconteceu. Para fixed_expense, é o NOME da conta (ex.: "Faculdade", "Aluguel", "Netflix"). Limpa de gírias, sem emoji, sem aspas.
 - "occurredAt": data/hora em ISO 8601 com offset -03:00 (America/Sao_Paulo), ou null se a mensagem não tiver referência temporal explícita e o intent não exigir uma data. Para expense/income sem indicação de quando, devolva null (o app trata como "agora"). Para fixed_expense, devolva null (a data não é uma ocorrência única — use fixedDay).
 - "fixedDay": inteiro de 1 a 31 indicando o dia do mês em que a conta fixa vence. Preencher APENAS quando intent é "fixed_expense". null nos demais intents.
-- "installmentsTotal": inteiro de 2 a 120 indicando o número total de parcelas/meses da conta fixa, quando o usuário informa um prazo finito ("por 6 meses", "6x", "6 vezes", "6 parcelas", "até dezembro/2027"). Preencher APENAS quando intent é "fixed_expense" E houver indicação clara de prazo. null/omitido para contas fixas recorrentes sem prazo (caso default).
+- "installmentsTotal": inteiro de 2 a 480 indicando o número total de parcelas/meses da conta fixa, quando o usuário informa um prazo finito ("por 6 meses", "6x", "6 vezes", "6 parcelas", "até dezembro/2027", "financiamento de 30 anos"). Preencher APENAS quando intent é "fixed_expense" E houver indicação clara de prazo. null/omitido para contas fixas recorrentes sem prazo (caso default).
 - "confidence": número entre 0.0 e 1.0 indicando o quão confiante você está no parse como um todo. Use < 0.6 quando qualquer campo for ambíguo, contraditório ou impossível de inferir com segurança.
 
 # Definição de cada intent

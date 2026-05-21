@@ -30,12 +30,13 @@ export const ParsedMessageSchema = z.object({
   fixedDay: z.number().int().min(1).max(31).nullable().optional(),
   // Parcelamento opcional pra "fixed_expense". Quando informado, marca a conta
   // como finita; ao passar do último vencimento o bot envia parabéns e
-  // arquiva a conta. Limite alto (120 = 10 anos) pra cobrir financiamentos.
+  // arquiva a conta. Limite alto (480 = 40 anos) pra cobrir financiamento
+  // imobiliário (típico até 360 meses) com margem.
   installmentsTotal: z
     .number()
     .int()
     .min(2)
-    .max(120)
+    .max(480)
     .nullable()
     .optional(),
   confidence: z.number().min(0).max(1),

@@ -25,7 +25,7 @@ function parseDay(raw: string): number | null {
 
 function parseInstallments(raw: string): number | null {
   const n = Number(raw.trim());
-  if (!Number.isInteger(n) || n < 2 || n > 120) return null;
+  if (!Number.isInteger(n) || n < 2 || n > 480) return null;
   return n;
 }
 
@@ -109,7 +109,7 @@ export function AddFixedExpenseForm({ categories, onCreated }: Props) {
     if (durationKind === "installments") {
       const parsedN = parseInstallments(installments);
       if (parsedN === null) {
-        setError("Informe um número de parcelas entre 2 e 120.");
+        setError("Informe um número de parcelas entre 2 e 480 (até 40 anos).");
         return;
       }
       duration = { kind: "installments", total: parsedN };
@@ -143,9 +143,16 @@ export function AddFixedExpenseForm({ categories, onCreated }: Props) {
             ? "Nome inválido. Use letras, números, espaço, hífen ou _."
             : j.error === "invalid_category"
               ? "Categoria inválida."
-              : j.error === "invalid_end_month"
-                ? "Mês final inválido ou muito distante."
-                : "Não consegui cadastrar.",
+              : j.error === "invalid_end_month_format"
+                ? "Mês final em formato inválido. Use MM/AAAA (ex.: 12/2027)."
+                : j.error === "invalid_end_month_past"
+                  ? "Mês final não pode ser antes do próximo vencimento."
+                  : j.error === "invalid_end_month_far"
+                    ? "Mês final muito distante (limite de 40 anos)."
+                    // legado — versões anteriores devolviam invalid_end_month genérico
+                    : j.error === "invalid_end_month"
+                      ? "Mês final inválido ou muito distante."
+                      : "Não consegui cadastrar.",
         );
         return;
       }
@@ -310,8 +317,8 @@ export function AddFixedExpenseForm({ categories, onCreated }: Props) {
               className="w-full bg-transparent text-ink font-mono tabular-nums border-b border-rule focus:border-accent outline-none py-1.5 transition-colors duration-[var(--duration-base)]"
             />
             <p className="mt-1 font-mono text-[10px] text-ink-faint leading-relaxed">
-              A 1ª parcela é o próximo vencimento; o bot te parabeniza quando a
-              última for paga.
+              De 2 a 480 (até 40 anos). A 1ª parcela é o próximo vencimento; o
+              bot te parabeniza quando a última for paga.
             </p>
           </div>
         )}

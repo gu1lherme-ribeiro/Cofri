@@ -6,7 +6,7 @@ const MAX_LEAD_DAY = 7;
 const MIN_LEAD_DAY = 0;
 const NAME_RE = /^[\p{L}\d](?:[\p{L}\d \-_./&]*[\p{L}\d.])?$/u;
 const MAX_NAME_LEN = 40;
-const MAX_INSTALLMENTS = 120; // 10 anos — cobre financiamentos longos
+const MAX_INSTALLMENTS = 480; // 40 anos — cobre financiamento imobiliário (até 360 meses) com margem
 const MONTH_KEY_RE = /^(\d{4})-(0[1-9]|1[0-2])$/;
 
 function normalizeName(raw: string): string | null {
@@ -181,10 +181,19 @@ function deriveInstallments(
   if (duration.kind === "installments") {
     return { total: duration.total, start };
   }
-  // endMonth
+  // endMonth — separa os 3 modos de falha pra UI mostrar mensagem específica.
+  // Diferente de "installments" (que exige min 2 — "1 parcela" não é parcelado),
+  // aqui aceitamos total = 1: o usuário pode ter uma conta que termina no mês
+  // do próximo vencimento (uma única ocorrência futura).
   const total = monthsInclusive(start, duration.endMonth);
-  if (total == null || total < 2 || total > MAX_INSTALLMENTS) {
-    throw new FixedExpenseValidationError("invalid_end_month");
+  if (total == null) {
+    throw new FixedExpenseValidationError("invalid_end_month_format");
+  }
+  if (total < 1) {
+    throw new FixedExpenseValidationError("invalid_end_month_past");
+  }
+  if (total > MAX_INSTALLMENTS) {
+    throw new FixedExpenseValidationError("invalid_end_month_far");
   }
   return { total, start };
 }
