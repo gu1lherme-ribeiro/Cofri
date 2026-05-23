@@ -29,7 +29,7 @@ export function ReminderRow({ reminder }: Props) {
     >
       <div>
         {confirming ? (
-          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 py-4 sm:grid sm:grid-cols-[10rem_1fr_auto] sm:gap-x-6">
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 py-4 sm:grid sm:grid-cols-[10rem_minmax(0,1fr)_auto] sm:gap-x-6">
             <span className="font-mono text-xs tracking-wider text-negative uppercase">
               excluir?
             </span>
@@ -62,7 +62,7 @@ export function ReminderRow({ reminder }: Props) {
             </div>
           </div>
         ) : (
-          <div className="group grid items-baseline grid-cols-[1fr_auto_1.5rem] gap-x-3 gap-y-1 py-3 sm:grid-cols-[10rem_1fr_auto_1.25rem] sm:gap-x-6 sm:gap-y-0 sm:py-4">
+          <div className="group grid items-baseline grid-cols-[minmax(0,1fr)_auto_1.5rem] gap-x-3 gap-y-1 py-3 sm:grid-cols-[10rem_minmax(0,1fr)_auto_1.25rem] sm:gap-x-6 sm:gap-y-0 sm:py-4">
             {/* data/hora: mobile → linha 2 full; desktop → linha 1 col 1 */}
             <div className="row-start-2 col-span-3 sm:row-start-1 sm:col-start-1 sm:col-span-1">
               <EditableReminderDateTime

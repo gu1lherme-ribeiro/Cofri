@@ -17,9 +17,13 @@ export function DashboardHeader() {
           Conta
         </Link>
       </div>
-      <div className="flex items-baseline justify-between border-b border-rule pb-2">
-        <DashboardNav />
-        <HeaderContextLabel />
+      <div className="flex items-baseline justify-between gap-4 border-b border-rule pb-2">
+        <div className="min-w-0 flex-1">
+          <DashboardNav />
+        </div>
+        <div className="hidden shrink-0 sm:block">
+          <HeaderContextLabel />
+        </div>
       </div>
     </header>
   );

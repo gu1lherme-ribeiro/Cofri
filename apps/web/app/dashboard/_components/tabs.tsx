@@ -40,6 +40,24 @@ export function Tabs({ items, active, onChange, disabled }: Props) {
 
   useLayoutEffect(() => {
     measure();
+    // Quando a nav transborda no mobile, garante que a aba ativa esteja visível
+    // — mas só rola o container da nav (não a página, não ancestrais). Por isso
+    // calculamos overflow manualmente em vez de usar scrollIntoView.
+    const container = containerRef.current;
+    const btn = btnRefs.current.get(active);
+    if (container && btn) {
+      const cRect = container.getBoundingClientRect();
+      const bRect = btn.getBoundingClientRect();
+      const overflowLeft = bRect.left - cRect.left;
+      const overflowRight = bRect.right - cRect.right;
+      // 'auto' na 1a render evita scroll animado no carregamento.
+      const behavior: ScrollBehavior = animate ? "smooth" : "auto";
+      if (overflowLeft < 0) {
+        container.scrollBy({ left: overflowLeft, behavior });
+      } else if (overflowRight > 0) {
+        container.scrollBy({ left: overflowRight, behavior });
+      }
+    }
     // segunda render anima; a primeira só posiciona sem transição
     const id = requestAnimationFrame(() => setAnimate(true));
     return () => cancelAnimationFrame(id);

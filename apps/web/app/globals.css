@@ -108,6 +108,10 @@ html {
   /* impede o iOS de auto-aumentar texto em rotações de orientação */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* salvaguarda: scroll horizontal acidental (nav transbordando, número
+   * gigante no hero, etc) nunca deve criar barra de scroll na página inteira.
+   * overflow-x: clip permite que position:sticky/fixed funcionem (overflow:hidden quebraria). */
+  overflow-x: clip;
 }
 
 body {
