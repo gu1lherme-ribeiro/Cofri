@@ -71,10 +71,28 @@ export function Tabs({ items, active, onChange, disabled }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
+  // Mouse wheel sobre a nav: converte deltaY em scroll horizontal. Sem isso, a
+  // pagina sobe ao rolar com o mouse sobre a faixa de tabs (que so tem overflow-x).
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const onWheel = (e: WheelEvent) => {
+      // So intercepta se a nav realmente transborda — em desktop largo, deixa
+      // o wheel rolar a pagina normalmente.
+      if (container.scrollWidth <= container.clientWidth) return;
+      // Trackpad horizontal nativo (deltaX dominante): nao interfere.
+      if (Math.abs(e.deltaX) >= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      container.scrollLeft += e.deltaY;
+    };
+    container.addEventListener("wheel", onWheel, { passive: false });
+    return () => container.removeEventListener("wheel", onWheel);
+  }, []);
+
   return (
     <div
       ref={containerRef}
-      className="no-scrollbar relative flex items-baseline gap-4 sm:gap-7 text-sm overflow-x-auto whitespace-nowrap"
+      className="no-scrollbar relative flex items-baseline gap-4 sm:gap-7 text-sm overflow-x-auto whitespace-nowrap touch-pan-x overscroll-x-contain"
     >
       {items.map((item) => {
         const isActive = item.value === active;
