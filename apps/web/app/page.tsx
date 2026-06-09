@@ -35,7 +35,7 @@ function TopBar({ isAuthed }: { isAuthed: boolean }) {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-[var(--layout-px)] py-3">
         <Link
           href="/"
-          className="flex items-center gap-2 font-display text-sm font-bold tracking-[0.35em] text-ink transition-colors hover:text-accent"
+          className="flex items-center gap-2 font-display text-sm font-bold tracking-[0.35em] text-ink transition-colors hover:text-accent max-sm:min-h-11"
           aria-label="Cofri — início"
         >
           <Image
@@ -65,7 +65,7 @@ function TopBar({ isAuthed }: { isAuthed: boolean }) {
           {isAuthed ? (
             <Link
               href="/dashboard"
-              className="group font-mono text-ink transition-colors hover:text-accent"
+              className="group inline-flex items-center font-mono text-ink transition-colors hover:text-accent max-sm:min-h-11"
             >
               estúdio{" "}
               <span
@@ -80,7 +80,7 @@ function TopBar({ isAuthed }: { isAuthed: boolean }) {
               href={TELEGRAM_URL}
               target="_blank"
               rel="noreferrer"
-              className="group font-mono text-ink transition-colors hover:text-accent"
+              className="group inline-flex items-center font-mono text-ink transition-colors hover:text-accent max-sm:min-h-11"
             >
               entrar{" "}
               <span
@@ -152,7 +152,10 @@ function Hero() {
               className="inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.18em] text-ink-faint"
               aria-disabled="true"
             >
-              <span className="animate-breathe h-1.5 w-1.5 rounded-full bg-led" />
+              <span
+                className="animate-breathe h-1.5 w-1.5 rounded-full bg-led"
+                style={{ boxShadow: "0 0 6px 1px var(--color-led-glow)" }}
+              />
               WhatsApp em breve
             </span>
           </div>
@@ -278,6 +281,9 @@ function Dialogue() {
               "linear-gradient(to right, #000 0%, transparent 35%)",
           }}
         />
+        {/* mobile: layout empilha sobre a foto — escurece tudo pra manter
+         * contraste do texto. No desktop o gradiente direcional já basta. */}
+        <div className="absolute inset-0 bg-black/55 lg:hidden" />
       </div>
 
       <div className="mx-auto max-w-6xl px-[var(--layout-px)] py-20 lg:py-28">
@@ -570,6 +576,8 @@ function Cinematic() {
             ].join(", "),
           }}
         />
+        {/* mobile: o texto ocupa toda a largura sobre a foto — reforça o scrim. */}
+        <div className="absolute inset-0 bg-black/45 lg:hidden" />
       </div>
 
       <Reveal className="mx-auto max-w-6xl px-[var(--layout-px)] py-24 lg:py-36">
@@ -599,7 +607,7 @@ function Cinematic() {
           </PrimaryCta>
           <Link
             href="#dialogo"
-            className="font-mono text-[12px] uppercase tracking-[0.18em] text-ink-muted underline decoration-rule decoration-from-font underline-offset-4 transition-colors hover:text-ink"
+            className="inline-flex items-center font-mono text-[12px] uppercase tracking-[0.18em] text-ink-muted underline decoration-rule decoration-from-font underline-offset-4 transition-colors hover:text-ink max-sm:min-h-11"
           >
             Ver outros exemplos
           </Link>
@@ -635,7 +643,7 @@ function Footer() {
             href={TELEGRAM_URL}
             target="_blank"
             rel="noreferrer"
-            className="text-ink transition-colors hover:text-accent"
+            className="inline-flex items-center text-ink transition-colors hover:text-accent max-sm:min-h-11"
           >
             {TELEGRAM_HANDLE}
           </Link>

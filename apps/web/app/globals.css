@@ -18,7 +18,8 @@
 
   /* Signal */
   --color-accent: #ffffff;            /* branco LED — ação primária (CTA, hover) */
-  --color-led: oklch(0.72 0.15 75);   /* âmbar — markers, índices, indicadores */
+  --color-led: oklch(0.7 0.1 145);    /* verde sage — markers, índices, indicadores */
+  --color-led-glow: #76aa62;          /* verde glow externo — halo do LED */
   --color-positive: oklch(0.7 0.1 145);   /* sage — receitas (cor funcional) */
   --color-negative: oklch(0.6 0.15 25);   /* terracotta — gastos (cor funcional) */
 
