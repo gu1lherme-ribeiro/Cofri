@@ -6,20 +6,21 @@
   --font-body: "Switzer", system-ui, sans-serif;
   --font-mono: "Fragment Mono", ui-monospace, "SF Mono", monospace;
 
-  /* Surfaces — neutrals tinged with the brand hue (75, amber) */
-  --color-canvas: oklch(0.15 0.005 75);
-  --color-surface: oklch(0.2 0.008 75);
-  --color-surface-2: oklch(0.25 0.008 75);
+  /* Surfaces — monochrome industrial palette, no hue tinting */
+  --color-canvas: #000000;        /* preto absoluto — fundo principal */
+  --color-surface: #0b0b0b;       /* preto grafite — superfícies */
+  --color-surface-2: #111111;     /* grafite premium — cards / sidebar */
 
-  --color-ink: oklch(0.95 0.005 75);
-  --color-ink-muted: oklch(0.62 0.008 75);
-  --color-ink-faint: oklch(0.45 0.008 75);
-  --color-rule: oklch(0.28 0.008 75);
+  --color-ink: #ededed;           /* branco suave — texto principal */
+  --color-ink-muted: #b8b8b8;     /* cinza claro — texto secundário (corpo de leitura) */
+  --color-ink-faint: #8a8a8a;     /* cinza frio — terceiro nível (labels técnicos) */
+  --color-rule: #3a3a3a;          /* cinza industrial — borda discreta */
 
-  /* Signal — used sparingly */
-  --color-accent: oklch(0.72 0.15 75);
-  --color-positive: oklch(0.7 0.1 145);
-  --color-negative: oklch(0.6 0.15 25);
+  /* Signal */
+  --color-accent: #ffffff;            /* branco LED — ação primária (CTA, hover) */
+  --color-led: oklch(0.72 0.15 75);   /* âmbar — markers, índices, indicadores */
+  --color-positive: oklch(0.7 0.1 145);   /* sage — receitas (cor funcional) */
+  --color-negative: oklch(0.6 0.15 25);   /* terracotta — gastos (cor funcional) */
 
   /* Misc */
   --radius-card: 4px;
@@ -63,6 +64,91 @@
 
 .animate-fade-in {
   animation: cofri-fade-in var(--duration-base) var(--ease-out-quint) both;
+}
+
+/* Scroll-reveal: opacity + sutil translateY. Usado na landing pela
+ * família Reveal/Stagger; mantém o tom "paciente" — sem deslocamento
+ * exagerado, sem bounce, uma única curva. */
+@keyframes cofri-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal-on-view {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.reveal-on-view[data-revealed="true"] {
+  animation: cofri-fade-up 600ms var(--ease-out-quint) both;
+}
+
+/* Stagger: cada filho direto vira alvo da mesma animação com delays
+ * crescentes via nth-child. Sem precisar passar índice no React. */
+.stagger-children > * {
+  opacity: 0;
+}
+.stagger-children[data-revealed="true"] > * {
+  animation: cofri-fade-up 600ms var(--ease-out-quint) both;
+}
+.stagger-children[data-revealed="true"] > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.stagger-children[data-revealed="true"] > *:nth-child(2) {
+  animation-delay: 90ms;
+}
+.stagger-children[data-revealed="true"] > *:nth-child(3) {
+  animation-delay: 180ms;
+}
+.stagger-children[data-revealed="true"] > *:nth-child(4) {
+  animation-delay: 270ms;
+}
+.stagger-children[data-revealed="true"] > *:nth-child(5) {
+  animation-delay: 360ms;
+}
+.stagger-children[data-revealed="true"] > *:nth-child(6) {
+  animation-delay: 450ms;
+}
+
+/* Rule draw — a hairline do SectionLabel escala de 0 → 100% (transform-origin
+ * left) quando o pai entra em viewport. Efeito tátil editorial de "régua sendo
+ * desenhada" anunciando que a seção chegou. Usa origin-left pra direção natural
+ * de leitura LTR. */
+.reveal-rule {
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.reveal-on-view[data-revealed="true"] .reveal-rule,
+.stagger-children[data-revealed="true"] .reveal-rule {
+  animation: cofri-rule-draw 700ms var(--ease-out-quint) 150ms both;
+}
+@keyframes cofri-rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Breathing — usado em uma única dot ("WhatsApp em breve") pra
+ * sinalizar estado em-desenvolvimento. Loop sereno, não acelera nada. */
+@keyframes cofri-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.animate-breathe {
+  animation: cofri-breathe 2.4s ease-in-out infinite;
 }
 
 /* collapse de altura via grid-template-rows trick.
